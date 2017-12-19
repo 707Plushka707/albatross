@@ -1,0 +1,25 @@
+{
+  "name": "albatross",
+  "version": "1.0.0",
+  "description": "$$$$$$$$$",
+  "main": "albatross.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asperellis/albatross.git"
+  },
+  "keywords": [
+    "$$$$$$$$$"
+  ],
+  "author": "Alex Sperellis and Al Doti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/asperellis/albatross/issues"
+  },
+  "homepage": "https://github.com/asperellis/albatross#readme",
+  "dependencies": {
+    "poloniex-api-node": "^1.6.5"
+  }
+}
