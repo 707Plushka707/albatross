@@ -1,0 +1,75 @@
+function getMarginBTC(assetExchange, currencyExchange, asset, profitCurrency //"asset or currency"//)
+	assetRate = assetExchange.highestBid(asset, "BTC"); //selling asset for BTC on assetExchange
+	currencyRate = currencyExchange.lowestAsk(asset, "BTC"); //buying asset with BTC on currencyExchange
+	
+	assetExchangeFee = assetExchange.TakerFee(); //easiest sale on assetExchange of asset
+	currencyExchangeFee = currencyExchange.TakerFee(); //easiest purchase on currencyExchange of asset
+	
+	assetAmt = assetExchange.returnWalletAmt(asset) //pull wallet balance from array/object that contains balances
+	currencyAmt = currencyExchange.returnWalletAmt("BTC") //same
+	
+	if (assetAmt = 0 or currencyAmt = 0) //if either exchange has zero balance in asset or currency, return null
+		return null
+	else
+		assetTOutput = assetRate*assetAmt*(1-assetExchangeFee) //assetTOutput = assetTheoreticalOutput
+		currencyTOutput = currencyRate*currencyAmt*(1-currencyExchangeFee) //currencyTheoreticalOutput
+		
+		//the following if/else sets input amounts.  option #1 & #2 for each coin corresponds to which coin we want to receive the profits into.
+		//e.g. if profitCurrency = "asset" (option #2) then we want our profits in LTC/ETH/etc but if "currency", we want the profit in BTC (option#1).
+		if (assetTOutput < currencyAmt) then 	//if the theoretical output from the assetExchange is < the amount of Currency(BTC) we have,
+												//then we need to limit the inputs by the assetAmt
+			//coin #1 - corresponds to matrix in Defunct Calculations tab of Arbitrage spreadsheet.  Same for other "Coin #2, Option #2", etc
+			//coin #1 means that the asset is the limiting coin.  coin #2 means the currency (BTC) is the limiting coin.
+			assetInput = assetAmt //assetInput = full amt of assets on hand
+			if (profitCurrency="currency") //option #1
+				currencyInput = assetInput*currencyRate/(1-currencyExchangeFee) //set BTC input so that net assetOutput = assetInput
+			else //option #2
+				currencyInput = assetInput*assetRate*(1-assetExchangeFee) //set BTC input = currencyOutput
+		else 
+			//coin #2
+			currencyInput = currencyAmt  //currencyInput = full amt of currency on hand
+			if (profitCurrency ="currency") //option #2
+				assetInput = currencyInput/currencyRate*(1-currencyExchangeFee) //set asset input = assetOutput
+			else //option #1
+				assetInput = currencyInput/assetRate/(1-assetExchangeFee) //set asset input so that net currencyOutput = currencyInput
+		
+		//calculate output w/ given inputs
+		currencyOutput = assetInput*assetRate*(1-assetExchangeFee) //calculate currencyOutput in BTC
+		assetOutput = currencyInput/currencyRate*(1-currencyExchangeFee) //calculate assetOutput	in Asset
+		assetNet = assetOutput-assetInput
+		currencyNet = currencyOutput-currencyInput
+		
+		//last bit returns the profit % and the parameters to execute that trade so we don't have to recalculate anything
+		//when it comes time to execute the trade.  we can instead just keep track of what parameters returned the highest net gain
+		//as we loop through this getMarginBTC w/ all possible currency pairs and exchanges.
+		
+		//if profitCurrency is "asset", our profit should be in assetNet or the net change from assetInput to assetOutput
+		if (profitCurrency = "asset")
+			return [assetNet/assetInput, assetExchange, currencyExchange, asset, assetInput, currencyInput]
+		//if profitCurrency is "currency", out profit should be in currencyNet or the net change from currencyInput to currencyOutput
+		else
+			return [currencyNet/currencyInput, assetExchange, currencyExchange, asset, assetInput, currencyInput]
+
+init/config() 
+	//idk what to call this.  basically i'd like to be able to set the trading pairs, target exchanges, trigger percentages, api/private key stuff
+	// in a separate file that the script calls. or just a space in this code where i enter all that info before running.
+			
+			
+function dataPull()	//no idea how this would work?  i think this is your regularly cycling loop that receives the ticker data as it is sent
+	//first, pull all bank data into a bank object containing each exchange and the balances inside.  maybe each exchange has its own "bank" object?
+	//or pull it into a JSON array?  is that the way to do this? IDK.  either way, pull balances first.
+	
+	//next, pull all market data into an object that contains lowestbid, highestbid for each exchange.  these will be referenced in the function
+	//that calculates the possible margin
+	
+	//loop through all exchanges and asset pairs w/ the "getMarginBTC" function.  maybe we have that function return an array that maybe looks like
+	//[margin%, assetExchange, currencyExchange, asset, assetInput, currencyInput] and it checks the margin% against the top returning trade so far.  if returns null,
+	//the trade isn't possible and the loop continues on w/ no change.  once all possible trades are checked, the top trade % is checked against the
+	//trigger percentage in the setup/config area and if it meets the criteria, two simultaneous maker trades are issued w/ the parameters listed.
+	
+	//the idea is to only execute one trade per pass. i dont want to overflow our rate limits w/ the private APIs so being able to limit the # of trades
+	//per minute seems like a safe bet.  also tries to minimize "simultaneous" trade requests to avoid network congestion.
+	
+	//loop back, clear "top returning trade" array
+	
+	
