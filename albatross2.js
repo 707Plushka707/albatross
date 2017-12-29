@@ -8,8 +8,8 @@ let loop;
 const tradingPairs = ['LTCBTC','ETHBTC'];
 const exchange = ['gdax','poloniex','binance'];
 const triggerPercentage = .001;
-const binanceApiKey = 'GdkAbnV8gDAry8i4BoBL61wzZ2QaX2lwOwrqh6Av7OSlVfR6IaGi8bGwHCmJagO7';
-const binanceSecret = '94ln27lZiPDNfb3nrOkiLHY0Ki8Tocnu49ro2IT0kEZvCak1XXBabprCqc2FLld5';
+const binanceApiKey = '';
+const binanceSecret = '';
 
 // wallets
 const gdaxAcc = {
