@@ -143,6 +143,8 @@ const watchPair = () => {
 			for (const k in tradingPairs) {
 				if (i!=j) {
 					tempTrade = getMarginBTC(exchange[i],exchange[j],tradingPairs[k],'currency');
+					console.log("NET, ASSET EXCHANGE, CURRENCY EXCHANGE, ASSET PAIR, ASSET IN, ASSET OUT, CURRENCY IN, CURRENCY OUT");
+					console.log(tempTrade);
 					if (tempTrade != true) {
 					}
 					else {if (tempTrade[0] > topTrade [0]){
@@ -160,7 +162,7 @@ const watchPair = () => {
 	console.log(topTrade[3].slice(3,6) + ' Net: ' + (topTrade[7]-topTrade[6]) + ' = $' + (topTrade[7]-topTrade[6])*poloniexMrkt['USDT_BTC'].last);
 	console.log(topTrade[3].slice(0,3) + ' Net: ' + (topTrade[5]-topTrade[4]));
 	console.log();
-	if (topTrade[0] < triggerPercentage) {
+	/*if (topTrade[0] < triggerPercentage) {
 		console.log('Minimum margin of ' + triggerPercentage * 100 + '% not met.');
 	}
 	else {
@@ -170,7 +172,7 @@ const watchPair = () => {
 		console.log('           NEW WALLET BALANCES');
 		console.log('---------------------------------------');
 		console.log(wallets);
-	}
+	}*/
 	// populate buy/ask table
 	//console.log(buyAskTable);
 	//console.log(binanceETH);
