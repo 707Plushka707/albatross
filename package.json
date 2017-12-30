@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/asperellis/albatross#readme",
   "dependencies": {
+    "axios": "^0.17.1",
+    "binance": "^1.1.2",
     "gdax": "github:coinbase/gdax-node",
     "poloniex-api-node": "^1.6.5"
   }
