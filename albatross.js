@@ -22,7 +22,7 @@ const initWatch = () => {
   axios.all([Api.gdax.getProductTicker(), Api.poloniex.getTicker(), Api.gdax2.getProductTicker(), Api.binance.getTicker()])
   .then(axios.spread((gdaxMrkt, poloniexMrkt, coin1USD, binance) => {
     // TODO: Null Check
-    console.log(poloniexMrkt);
+    console.log([...poloniexMrkt, ...binance]);
     // TODO: Store in market obj
     // TODO: Run calcs - getMargin for each possible market pair and Log
     // sell 1 buy 2, sell 1 buy 3, sell 2 buy 1, sell 2 buy 3, sell 3 buy 1, sell 3 buy 2 per (ltc, eth)
