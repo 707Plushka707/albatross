@@ -4,26 +4,12 @@ const TRIGGER = 0.001;
 const TIME = 2000;
 let loop;
 
-// wallets
-const gdaxAcc = {
-  'BTC': 0,
-  'LTC': 6,
-  'ETH': 3
-};
-
-const poloniexAcc = {
-  'BTC': 0.24,
-  'LTC': 0,
-  'ETH': 0
-};
-
 const initWatch = () => {
-  // get all the info
-  // , Exchanges.gdax2.getProductTicker()Exchanges.gdax.getProductTicker(),
-  axios.all([ Exchanges.poloniex.getTicker(), Exchanges.binance.getTicker()])
-  .then(axios.spread((poloniexMrkt, binance) => {
+  // get all exchange ticker data
+  axios.all([ Exchanges.gdax.getTicker(), Exchanges.poloniex.getTicker(), Exchanges.binance.getTicker()])
+  .then(axios.spread((gdax, poloniex, binance) => {
     // TODO: Null Check
-    console.log([...poloniexMrkt, ...binance]);
+    console.log([...poloniex, ...binance, ...gdax]);
     // TODO: Store in market obj
     // TODO: Run calcs - getMargin for each possible market pair and Log
     // sell 1 buy 2, sell 1 buy 3, sell 2 buy 1, sell 2 buy 3, sell 3 buy 1, sell 3 buy 2 per (ltc, eth)
@@ -47,7 +33,6 @@ const initWatch = () => {
     // console.log('NET GAINS: $' + calculateNet(coin1, coin2, gdaxMrkt.price, coin1PoloniexPrice, coin1USD.price));
     // console.log('===================');
   })).catch(error => {
-    // handle the error
     console.log(error);
   });
 };
@@ -69,6 +54,6 @@ const calculateNet = (coin1, coin2, gdaxPrice, poloniexPrice, usd) => {
   const netGains = diff * usd;
 
   return netGains;
-}
+};
 
 loop = setInterval(initWatch, TIME);

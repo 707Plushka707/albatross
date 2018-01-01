@@ -1,10 +1,9 @@
 const poloniex = require('./poloniex');
 const binance = require('./binance');
-// TODO: gdax getTicker function
+const gdax = require('./gdax');
 
 module.exports = {
-  // gdax,
-  // gdax2,
+  gdax,
   poloniex,
   binance
 };
