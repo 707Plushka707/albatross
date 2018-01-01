@@ -1,5 +1,5 @@
 const axios = require('axios');
-const Api = require('./utils/exchanges');
+const Api = require('./exchanges/exchanges');
 const TRIGGER = 0.001;
 const TIME = 2000;
 let loop;
@@ -19,8 +19,9 @@ const poloniexAcc = {
 
 const initWatch = () => {
   // get all the info
-  axios.all([Api.gdax.getProductTicker(), Api.poloniex.getTicker(), Api.gdax2.getProductTicker(), Api.binance.getTicker()])
-  .then(axios.spread((gdaxMrkt, poloniexMrkt, coin1USD, binance) => {
+  // , Api.gdax2.getProductTicker()Api.gdax.getProductTicker(),
+  axios.all([ Api.poloniex.getTicker(), Api.binance.getTicker()])
+  .then(axios.spread((poloniexMrkt, binance) => {
     // TODO: Null Check
     console.log([...poloniexMrkt, ...binance]);
     // TODO: Store in market obj
