@@ -4,22 +4,43 @@ const TRIGGER = 0.001;
 const TIME = 2000;
 let loop;
 
-const initWatch = () => {
+const init = () => {
   // get all exchange ticker data
   axios.all([ Exchanges.gdax.getTicker(), Exchanges.poloniex.getTicker(), Exchanges.binance.getTicker()])
   .then(axios.spread((gdax, poloniex, binance) => {
-    // TODO: Null Check
-    console.log([...poloniex, ...binance, ...gdax]);
-    // TODO: Store in market obj
-    // TODO: Run calcs - getMargin for each possible market pair and Log
-    // sell 1 buy 2, sell 1 buy 3, sell 2 buy 1, sell 2 buy 3, sell 3 buy 1, sell 3 buy 2 per (ltc, eth)
-    // TODO: if get margin meets trigger = update the wallets
+    // coins we're checking
+    const coins = {};
+    
+    // map the market data by coin to loop through all market comparisons
+    // if the calls return an empty array that market will just be out of this object
+    [...poloniex, ...binance, ...gdax].forEach((m) => {
+      const market = { bid: m.bid, ask: m.ask, market: m.market };
+      if(!coins[m.name]) {
+        coins[m.name] = [market];
+      } else {
+        coins[m.name].push(market)
+      }
+    });
 
-    // if(!poloniexMrkt[coin2 + '_' + coin1] || !gdaxMrkt.price || !coin1USD.price) {
-    //   console.log('Invalid coins entered');
-    //   clearInterval(loop);
-    //   return;
-    // }
+    // compare all possible market pairs for each coin
+    for(coin in coins) {
+      // all the markets for that coin
+      let markets = coins[coin];
+      // only check if there's at least two markets to compare
+      if(markets.length > 1) {
+        do {
+          const m = markets.pop();
+          for(let k = 0; k < markets.length; k++) {
+            const market1 = m;
+            const market2 = markets[k];
+            // TODO: Run Calculations here for each market pair
+            // TODO: If Calculations meet trigger - fire the trade
+          }
+        } while(markets.length);
+      }
+    }
+
+    // OLD CODE
     // prices - temp logging
     // const coin1PoloniexPrice = poloniexMrkt[coin2 + '_' + coin1].last;
     // prices['gdax'][coin1 + '_' + coin2] = gdaxMrkt.price;
@@ -56,4 +77,4 @@ const calculateNet = (coin1, coin2, gdaxPrice, poloniexPrice, usd) => {
   return netGains;
 };
 
-loop = setInterval(initWatch, TIME);
+loop = setInterval(init, TIME);

@@ -3,7 +3,6 @@ const Gdax = require('gdax');
 const gdax = new Gdax.PublicClient();
 const mapTicker = (name, bid, ask, market) => { return { name, bid, ask, market } };
 
-/* GDAX Exchange */
 gdax.secret = 'gKey';
 gdax.privateKey = 'gSec';
 gdax.getTicker = () => axios.all([gdax.getProductTicker('ETH-BTC'), gdax.getProductTicker('LTC-BTC')])
