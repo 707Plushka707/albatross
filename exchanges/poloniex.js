@@ -5,6 +5,10 @@ const mapTicker = (name, bid, ask, market) => { return { name, bid, ask, market 
 
 poloniex.secret = 'pKey';
 poloniex.privateKey = 'pSec';
+poloniex.fees = {
+  maker: 0.0015,
+  taker: 0.0025
+};
 poloniex.getTicker = () => axios.all([poloniex.returnTicker()])
   .then((response) => {
     const fullTicker = response[0];

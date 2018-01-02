@@ -1,7 +1,18 @@
 const axios = require('axios');
+// apis for each exchange
 const Exchanges = require('./exchanges/exchanges');
+
+// wallets for each exchange
+const Wallets = require('./utils/wallets');
+
+// math utilities
+const Calc = require('./utils/calculations');
+
+// constants
 const TRIGGER = 0.001;
 const TIME = 2000;
+
+// for timer
 let loop;
 
 const init = () => {
@@ -11,8 +22,8 @@ const init = () => {
     // coins we're checking
     const coins = {};
     
-    // map the market data by coin to loop through all market comparisons
-    // if the calls return an empty array that market will just be out of this object
+    /* map the market data by coin to loop through all market comparisons
+       if the calls return an empty array that market will just be out of this object */
     [...poloniex, ...binance, ...gdax].forEach((m) => {
       const market = { bid: m.bid, ask: m.ask, market: m.market };
       if(!coins[m.name]) {
@@ -27,16 +38,19 @@ const init = () => {
       // all the markets for that coin
       let markets = coins[coin];
       // only check if there's at least two markets to compare
-      if(markets.length > 1) {
-        do {
-          const m = markets.pop();
-          for(let k = 0; k < markets.length; k++) {
-            const market1 = m;
-            const market2 = markets[k];
-            // TODO: Run Calculations here for each market pair
-            // TODO: If Calculations meet trigger - fire the trade
-          }
-        } while(markets.length);
+      while(markets.length > 1) {
+        const m = markets.pop();
+        for(let k = 0; k < markets.length; k++) {
+          const market1 = m;
+          const market2 = markets[k];
+          // add in the fees
+          market1.fees = Exchanges[market1.market].fees;
+          market2.fees = Exchanges[market2.market].fees;
+          console.log(Calc.margin(market1, market2, coin));
+          console.log(Calc.margin(market2, market1, coin));
+          // TODO: Run Calculations here for each market pair
+          // TODO: If Calculations meet trigger - fire the trade
+        }
       }
     }
 
@@ -56,25 +70,6 @@ const init = () => {
   })).catch(error => {
     console.log(error);
   });
-};
-
-// calculates net gains
-// params: names of coin1 and coind2, price in either exchange and the usd val of coin1
-const calculateNet = (coin1, coin2, gdaxPrice, poloniexPrice, usd) => {
-  // trading fees - need to confirm values for each ex
-  const fees = 0.0025;
-
-  // gdax coin1 -> coin2 trade
-  const c1Toc2 = gdaxAcc[coin1] * gdaxPrice - (fees * gdaxAcc[coin1] * gdaxPrice);
-  
-  // polo coin2 -> coin1 trade
-  const c2Toc1 = c1Toc2 / poloniexPrice - (fees * c1Toc2 / poloniexPrice);
-  
-  // coin gained or lost
-  const diff = c2Toc1 - gdaxAcc[coin1];
-  const netGains = diff * usd;
-
-  return netGains;
 };
 
 loop = setInterval(init, TIME);

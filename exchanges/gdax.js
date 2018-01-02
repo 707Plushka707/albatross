@@ -5,6 +5,10 @@ const mapTicker = (name, bid, ask, market) => { return { name, bid, ask, market 
 
 gdax.secret = 'gKey';
 gdax.privateKey = 'gSec';
+gdax.fees = {
+  maker: 0,
+  taker: 0.0025
+};
 gdax.getTicker = () => axios.all([gdax.getProductTicker('ETH-BTC'), gdax.getProductTicker('LTC-BTC')])
   .then(axios.spread((eth, ltc) => {
     eth.name = 'ETHBTC';
