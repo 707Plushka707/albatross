@@ -17,7 +17,7 @@ const calculations = {
     // return diff;
   },
   // compares all coins market prices. if margin meets trigger. fire trade
-  compare: function(coins) {
+  compare: function(coins, trigger) {
     for(coin in coins) {
       // all the markets for that coin
       let markets = coins[coin];
