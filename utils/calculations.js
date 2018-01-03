@@ -1,8 +1,8 @@
-const Exchanges = require('./../exchanges/exchanges');
+const FEES = require('./../exchanges/exchanges').fees;
 
 const calculations = {
-  margin: function(market1, market2, coin) {
-    console.log('checking', coin,  market1, market2);
+  getMargin: function(market1, market2, coin) {
+    return console.log('checking margin for ', coin, 'on ', market1.market, ' to ', market2.market);
     // trading fees - need to confirm values for each ex
 
     // coin1 -> coin2 trade
@@ -28,10 +28,10 @@ const calculations = {
           const market1 = m;
           const market2 = markets[k];
           // add in the fees
-          market1.fees = Exchanges[market1.market].fees;
-          market2.fees = Exchanges[market2.market].fees;
-          console.log(this.margin(market1, market2, coin));
-          console.log(this.margin(market2, market1, coin));
+          market1.fees = FEES[market1.market];
+          market2.fees = FEES[market2.market];
+          console.log(this.getMargin(market1, market2, coin));
+          console.log(this.getMargin(market2, market1, coin));
           // TODO: Run Calculations here for each market pair
           // TODO: If Calculations meet trigger - fire the trade
         }
