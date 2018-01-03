@@ -1,9 +1,26 @@
 const poloniex = require('./poloniex');
 const binance = require('./binance');
 const gdax = require('./gdax');
+const groupByCoin = (markets) => {
+  const coins = {};
+    
+  /* map the market data by coin to loop through all market comparisons
+     if the calls return an empty array that market will just be out of this object */
+  markets.forEach((m) => {
+    const market = { bid: m.bid, ask: m.ask, market: m.market };
+    if(!coins[m.name]) {
+      coins[m.name] = [market];
+    } else {
+      coins[m.name].push(market)
+    }
+  });
+
+  return coins;
+};
 
 module.exports = {
   gdax,
   poloniex,
-  binance
+  binance,
+  groupByCoin
 };
