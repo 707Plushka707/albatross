@@ -27,17 +27,16 @@ const calculations = {
         for(let k = 0; k < markets.length; k++) {
           const market1 = m;
           const market2 = markets[k];
+          // temp for checking nulls. will fix when getMargin updates
           if(this.canTrade(coin, wallets[market1.market]) && this.canTrade(coin, wallets[market2.market])) {
             // add in the fees
             market1.fees = FEES[market1.market];
             market2.fees = FEES[market2.market];
             this.getMargin(market1, market2, coin);
             this.getMargin(market2, market1, coin);
-            
+            // TODO: THese two get margin trades. need to know which si which so can edit can trade logic
             // TODO: Run Calculations here for each market pair
             // TODO: If Calculations meet trigger - fire the trade
-          } else {
-            console.log('NOT TRADING', coin, 'ON', market1.market, 'AND', market2.market);
           }
         }
       }
