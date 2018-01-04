@@ -17,7 +17,7 @@ const calculations = {
     // return diff;
   },
   // compares all coins market prices. if margin meets trigger. fire trade
-  compare: function(coins, trigger) {
+  compare: function(coins, trigger, wallets) {
     for(coin in coins) {
       // all the markets for that coin
       let markets = coins[coin];
@@ -27,16 +27,35 @@ const calculations = {
         for(let k = 0; k < markets.length; k++) {
           const market1 = m;
           const market2 = markets[k];
-          // add in the fees
-          market1.fees = FEES[market1.market];
-          market2.fees = FEES[market2.market];
-          console.log(this.getMargin(market1, market2, coin));
-          console.log(this.getMargin(market2, market1, coin));
-          // TODO: Run Calculations here for each market pair
-          // TODO: If Calculations meet trigger - fire the trade
+          if(this.canTrade(coin, wallets[market1.market]) && this.canTrade(coin, wallets[market2.market])) {
+            // add in the fees
+            market1.fees = FEES[market1.market];
+            market2.fees = FEES[market2.market];
+            this.getMargin(market1, market2, coin);
+            this.getMargin(market2, market1, coin);
+            
+            // TODO: Run Calculations here for each market pair
+            // TODO: If Calculations meet trigger - fire the trade
+          } else {
+            console.log('NOT TRADING', coin, 'ON', market1.market, 'AND', market2.market);
+          }
         }
       }
     }
+  },
+  canTrade: function(pair, wallet) {
+    let canTrade = true;
+    
+    for (entry in wallet) {
+      if (pair.indexOf(entry)) {
+        if (wallet[entry] === 0) {
+          canTrade = false;
+          break;
+        }
+      }
+    }
+
+    return canTrade;
   }
 };
 
