@@ -4,7 +4,12 @@ const calculations = {
   getMargin: function(market1, market2, coin) {
     return console.log('checking margin for ', coin, 'on ', market1.market, ' to ', market2.market);
     // trading fees - need to confirm values for each ex
-
+    // K I KNOW THIS IS PROBABLY THE WRONG WAY TO CALL THESE VALUES BUT I THINK YOU GET WHAT I'm GETTING AT
+    
+    // curr = 1 // theoretical 1 BTC currency input but it doesnt matter.
+    // we could just hardcode '1' where 'curr' because regardless of the value of curr it will return the same %
+    // return ( ( curr / market2[coin].ask * ( 1 - market2.fee ) * market1[coin].bid * ( 1 - market1.fee ) ) - curr ) / curr
+    
     // coin1 -> coin2 trade
     // const c1Toc2 = wallet[ltc] * price[market 1 ask or bid?] - (fees[taker of market 1?] * wallet[ltc] * price[arket 1 ask or bid?]);
     
