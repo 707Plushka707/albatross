@@ -22,7 +22,8 @@ binance.getTicker = () => axios.all([binance.allBookTickers()])
         break;
       }
     }
-    mapTicker(item.symbol, item.bidPrice, item.askPrice, 'binance', item.asset, item.currency);
+
+    return mapTicker(item.symbol, item.bidPrice, item.askPrice, 'binance', item.asset, item.currency);
   });
 })
 .catch((error) => {

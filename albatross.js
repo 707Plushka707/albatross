@@ -19,8 +19,7 @@ const init = () => {
   // get all exchange ticker data
   axios.all([ Exchanges.gdax.getTicker(), Exchanges.poloniex.getTicker(), Exchanges.binance.getTicker()])
   .then(axios.spread((gdax, poloniex, binance) => {
-    // compare all possible market pairs for each coin
-    console.log([...gdax, ...poloniex, ...binance]);
+    // compare all possible market pairs for each coin - makes sure they arent undefined
     Calc.compare(Exchanges.groupByCoin([...gdax, ...poloniex, ...binance].filter((m) => m)), TRIGGER, Wallets);
   })).catch(error => {
     console.log(error);
