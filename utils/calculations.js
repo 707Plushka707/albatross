@@ -43,7 +43,7 @@ const calculations = {
           if(m1ToM2 > m2ToM1) {
             trade = compareTrades(trade, { exchanges: market1.market + '-' + market2.market, net: m1ToM2, coin });
           } else {
-            trade = compareTrades(trade, { exchanges: market1.market + '-' + market2.market, net: m2ToM1, coin });
+            trade = compareTrades(trade, { exchanges: market2.market + '-' + market1.market, net: m2ToM1, coin });
           }
         }
       }
