@@ -18,7 +18,7 @@ const init = () => {
     // compare all possible market pairs for each coin - makes sure they arent undefined
     const trade = Calc.getTrade(Exchanges.groupByCoin([...gdax, ...poloniex, ...binance].filter((m) => m)), TRIGGER);
     
-    if(trade) {
+    if (trade) {
       // TODO: AL, what do we need to know here to make a trade?
       console.log('TRADING: ', trade);
       // TODO: Exec a trade, ONLY if wallet amounts will allow
@@ -33,4 +33,3 @@ const init = () => {
 };
 
 init();
-// loop = setInterval(init, TIME);

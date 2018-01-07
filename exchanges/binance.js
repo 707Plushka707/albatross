@@ -2,8 +2,8 @@ const axios = require('axios');
 const Binance = require('binance');
 const binance = new Binance.BinanceRest({key: '', secret: ''});
 const mapTicker = (name, bid, ask, market, asset, currency) => { return { name, bid, ask, market, asset, currency } };
-const coins = ['ETHBTC', 'LTCBTC'];
-const currencies = ['BTC'];
+const coins = ['ETHBTC', 'LTCBTC', 'BTSBTC', 'DASHBTC', 'ETCETH', 'GASBTC', 'LSKBTC', 'LSKETH', 'NAVBTC', 'OMGBTC', 'OMGETH', 'STORJBTC', 'STARTBTC', 'XMRBTC', 'XRPBTC', 'ZECBTC', 'ZECETH', 'ZRXBTC', 'ZRXETH'];
+const currencies = ['BTC', 'ETH'];
 binance.secret = 'bKey';
 binance.privateKey = 'bSec';
 binance.fees = {
