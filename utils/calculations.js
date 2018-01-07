@@ -41,9 +41,9 @@ const calculations = {
           const m2ToM1 = this.getMargin(market2, market1);
           // see if either pair beats the current trades net
           if(m1ToM2 > m2ToM1) {
-            trade = compareTrades(trade, { exchanges: market1.market + '-' + market2.market, net: m1ToM2 });
+            trade = compareTrades(trade, { exchanges: market1.market + '-' + market2.market, net: m1ToM2, coin });
           } else {
-            trade = compareTrades(trade, { exchanges: market1.market + '-' + market2.market, net: m2ToM1 });
+            trade = compareTrades(trade, { exchanges: market1.market + '-' + market2.market, net: m2ToM1, coin });
           }
         }
       }
