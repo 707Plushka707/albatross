@@ -12,12 +12,9 @@ const calculations = {
   },
   canTrade: function(market1, market2, paperWallet) {
     const MIN_TRADE = .0003;
-    const hasAsset = paperWallet[market1.market][market1.asset] > 0;
-    const hasCurrency = paperWallet[market2.market][market2.currency] > 0;
-    const hasEnoughCurrency = paperWallet[market1.market][market1.asset] * market1.bid <= paperWallet[market2.market][market2.currency];
     const meetsMin = paperWallet[market1.market][market1.asset] * market1.bid > MIN_TRADE && paperWallet[market2.market][market2.currency] > MIN_TRADE;
 
-    return hasAsset && hasCurrency && hasEnoughCurrency && meetsMin;    
+    return meetsMin;    
   },
   // compares all coins market prices. if margin meets trigger. return trade
   getTrade: function(coins, paperWallet) {
@@ -27,7 +24,7 @@ const calculations = {
     let trade = {};
 
     // compares current highest trade and a new one
-    const compareTrades = (current, newest) => {
+    const updateTrade = (current, newest) => {
       // keep current if theres a trade and its higher than the new
       if ((current.net && current.net > newest.net)) {
         return current;
@@ -57,9 +54,9 @@ const calculations = {
           // see if either pair beats the current trades net
           // TODO: if exchange 1 and exchange 2 wallets have x amounts for asset and currency
           if(m1ToM2 > m2ToM1) {
-            trade = compareTrades(trade, { exchanges: market1.market + '-' + market2.market, net: m1ToM2, coin });
+            trade = updateTrade(trade, { exchanges: market1.market + '-' + market2.market, net: m1ToM2, coin });
           } else {
-            trade = compareTrades(trade, { exchanges: market2.market + '-' + market1.market, net: m2ToM1, coin });
+            trade = updateTrade(trade, { exchanges: market2.market + '-' + market1.market, net: m2ToM1, coin });
           }
         }
       }
