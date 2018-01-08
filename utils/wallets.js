@@ -23,7 +23,7 @@ const wallets = {
     'ZRX': 252.9492211
 	},
 	binance: {
-		'BTC': 0.1,
+		'BTC': 0.01,
 		'LTC': 0,
     'ETH': 0,
     'DASH': 0,
