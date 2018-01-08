@@ -15,7 +15,7 @@ const init = () => {
   .then(axios.spread((gdax, poloniex, binance) => {
     // compare all possible market pairs for each coin - makes sure they arent undefined
     const trade = Calc.getTrade(Exchanges.groupByCoin([...gdax, ...poloniex, ...binance].filter((m) => m)), paperWallet);
-    
+
     if (trade) {
       // TODO: AL, what do we need to know here to make a trade?
       console.log('TRADING: ', trade);
