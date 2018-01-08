@@ -10,7 +10,6 @@ const paperWallet = require('./utils/wallets');
 const Calc = require('./utils/calculations');
 
 const init = () => {
-  console.log('!!!new trade!!!');
   // get all exchange ticker data
   axios.all([ Exchanges.gdax.getTicker(), Exchanges.poloniex.getTicker(), Exchanges.binance.getTicker()])
   .then(axios.spread((gdax, poloniex, binance) => {
