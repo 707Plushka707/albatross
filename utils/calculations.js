@@ -1,13 +1,28 @@
 const FEES = require('./../exchanges/exchanges').fees;
 
 const calculations = {
-  getMargin: function(market1, market2) {
+  getMargin: function(market1, market2, paperWallet) {
     // theoretical 1 BTC currency input but it doesnt matter.
-    const curr = 1;
-    return ((curr / market2.ask * (1 - market2.fees.taker) * market1.bid * (1 - market1.fees.taker)) - curr) / curr;
+    // market 1 - asset to currency
+    // market 2 - currency to asset
+    if (!this.canTrade(market1, market2, paperWallet)) {
+      return 0;
+    }
+    return ((1 / market2.ask * (1 - market2.fees.taker) * market1.bid * (1 - market1.fees.taker)) - 1) / 1;
+  },
+  canTrade: function(market1, market2, paperWallet) {
+    const MIN_TRADE = .0003;
+    const hasAsset = paperWallet[market1.market][market1.asset] > 0;
+    const hasCurrency = paperWallet[market2.market][market2.currency] > 0;
+    const hasEnoughCurrency = paperWallet[market1.market][market1.asset] * market1.bid <= paperWallet[market2.market][market2.currency];
+    const meetsMin = paperWallet[market1.market][market1.asset] * market1.bid > MIN_TRADE && paperWallet[market2.market][market2.currency] > MIN_TRADE;
+
+    return hasAsset && hasCurrency && hasEnoughCurrency && meetsMin;    
   },
   // compares all coins market prices. if margin meets trigger. return trade
-  getTrade: function(coins, trigger) {
+  getTrade: function(coins, paperWallet) {
+    // constants
+    const TRIGGER = 0.001;
     // trade to return
     let trade = {};
 
@@ -37,9 +52,10 @@ const calculations = {
           market1.fees = FEES[market1.market];
           market2.fees = FEES[market2.market];
           // calc nets
-          const m1ToM2 = this.getMargin(market1, market2);
-          const m2ToM1 = this.getMargin(market2, market1);
+          const m1ToM2 = this.getMargin(market1, market2, paperWallet);
+          const m2ToM1 = this.getMargin(market2, market1, paperWallet);
           // see if either pair beats the current trades net
+          // TODO: if exchange 1 and exchange 2 wallets have x amounts for asset and currency
           if(m1ToM2 > m2ToM1) {
             trade = compareTrades(trade, { exchanges: market1.market + '-' + market2.market, net: m1ToM2, coin });
           } else {
@@ -50,7 +66,7 @@ const calculations = {
     }
 
     // if there's a trade and the net is not greater than our min allowed for a trade then return nothing
-    if (trade.net && trade.net < trigger) {
+    if (trade.net < TRIGGER || !trade.net) {
       return false;
     }
 

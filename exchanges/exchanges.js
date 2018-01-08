@@ -6,7 +6,7 @@ const groupByCoin = (markets) => {
   const coins = {};
 
   markets.forEach((m) => {
-    const market = { bid: m.bid, ask: m.ask, market: m.market };
+    const market = { bid: m.bid, ask: m.ask, market: m.market, asset: m.asset, currency: m.currency };
     if(!coins[m.name]) {
       coins[m.name] = [market];
     } else {

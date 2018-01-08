@@ -3,25 +3,23 @@ const axios = require('axios');
 const Exchanges = require('./exchanges/exchanges');
 
 // wallets for each exchange
-const Wallets = require('./utils/wallets');
+const paperWallet = require('./utils/wallets');
 
 // math utilities
 const Calc = require('./utils/calculations');
 
-// constants
-const TRIGGER = 0.001;
-
 const init = () => {
+  console.log('!!!new trade!!!');
   // get all exchange ticker data
   axios.all([ Exchanges.gdax.getTicker(), Exchanges.poloniex.getTicker(), Exchanges.binance.getTicker()])
   .then(axios.spread((gdax, poloniex, binance) => {
     // compare all possible market pairs for each coin - makes sure they arent undefined
-    const trade = Calc.getTrade(Exchanges.groupByCoin([...gdax, ...poloniex, ...binance].filter((m) => m)), TRIGGER);
+    const trade = Calc.getTrade(Exchanges.groupByCoin([...gdax, ...poloniex, ...binance].filter((m) => m)), paperWallet);
     
     if (trade) {
       // TODO: AL, what do we need to know here to make a trade?
       console.log('TRADING: ', trade);
-      // TODO: Exec a trade, ONLY if wallet amounts will allow
+      // TODO: exe a trade - exchange 1 (asset for cur) && exchange 2 (cur for asset) - check on this with al
       // TODO: Start the search again after the trade is complete.
       // init();
     } else {
