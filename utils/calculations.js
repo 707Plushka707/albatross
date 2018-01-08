@@ -54,9 +54,9 @@ const calculations = {
           // see if either pair beats the current trades net
           // TODO: if exchange 1 and exchange 2 wallets have x amounts for asset and currency
           if(m1ToM2 > m2ToM1) {
-            trade = updateTrade(trade, { exchanges: market1.market + '-' + market2.market, net: m1ToM2, coin });
+            trade = updateTrade(trade, { market1, market2, net: m1ToM2 });
           } else {
-            trade = updateTrade(trade, { exchanges: market2.market + '-' + market1.market, net: m2ToM1, coin });
+            trade = updateTrade(trade, { market1: market2, market2: market1, net: m2ToM1 });
           }
         }
       }
