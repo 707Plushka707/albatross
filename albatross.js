@@ -14,8 +14,8 @@ const Calc = require('./utils/calculations');
 
 // logger
 const log = require('./utils/logger');
-
 let runs = 0;
+
 const init = () => {
   // start logging with init wallet amount for paper trading
   if(runs === 0) {

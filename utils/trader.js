@@ -1,31 +1,4 @@
 const trader = {
-  /* NOTES FOR AL - THIS IS WHAT TRADE OBJ LOOKS LIKE
-    {
-      "market1": {
-        "bid": "0.00144500",
-        "ask": "0.00144539",
-        "market": "poloniex",
-        "asset": "STRAT",
-        "currency": "BTC",
-        "fees":  { 
-          "maker": 0.0015,
-          "taker": 0.0025
-        }
-      },
-      "market2": {
-        "bid": "0.00143700",
-        "ask": "0.00143800",
-        "market": "binance",
-        "asset": "STRAT",
-        "currency": "BTC",
-        "fees": {
-          "maker": 0.001,
-          "taker": 0.001
-        }
-      },
-      "net": 0.0013533466620307966
-    }
-  */
   execute: function(trade, paperWallet) {
     // find limiting asset/currency
     const limits = this.getLimits(trade, paperWallet);
@@ -47,7 +20,7 @@ const trader = {
   getLimits: function(trade, paperWallet) {
     /* if the theoretical output of the market2 trade using the total amount of currency in market2's wallet is greater than the amount of asset in       market1's wallet, then work backwards from the amount of asset in market1's wallet to find the amount of currency to transact in market2        
        otherwise, set the amount of asset to sell on market1 = to the theoretical output with the full amount of currency in market2's wallet */
-    const useCurrency = paperWallet[trade.market2.market][trade.market1.currency] / trade.market2.ask * (1 - trade.market2.fees.taker) > paperWallet[trade.market1.market][trade.market1.asset];
+    const useCurrency = paperWallet[trade.market2.market][trade.market2.currency] / trade.market2.ask * (1 - trade.market2.fees.taker) > paperWallet[trade.market1.market][trade.market1.asset];
 
     // amounts to trade with based on wallet
     let startAsset = startCurrency = 0;

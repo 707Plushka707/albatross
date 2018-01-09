@@ -19,8 +19,10 @@ const logger = (trade = '', wallet, fileName, callback) => {
     return mm + '-' + dd + '-' + yyyy;
   };
 
-  let tradeLog = trade ? getTimeStamp() + ' Traded ' + trade.market1.asset + trade.market1.currency + ' between ' + trade.market1.market + ' and ' + trade.market2.market + ' for a net of ' + trade.net + ' ' + trade.market1.currency + '\n' + JSON.stringify(wallet).replace(/{/g, '\n').replace(/}/g, '\n').replace(/,/g, '\n').trim() : getTimeStamp() + '$$$$$$$$======STARTING AN ALBATROSS SESSION=======$$$$$$' + '\n' + JSON.stringify(wallet).replace(/{/g, '\n').replace(/}/g, '\n').replace(/,/g, '\n').trim();
-  tradeLog+=(JSON.stringify(trade));
+  const timeStamp = getTimeStamp();
+  const initStamp = timeStamp + ' $$$$$$$$======STARTING AN ALBATROSS SESSION=======$$$$$$' + '\n' + JSON.stringify(wallet).replace(/{/g, '\n').replace(/}/g, '\n').replace(/,/g, '\n').trim();
+
+  const tradeLog = trade !== '' ? timeStamp + ' Traded ' + trade.market1.asset + trade.market1.currency + ' between ' + trade.market1.market + ' and ' + trade.market2.market + ' for a net of ' + trade.net + ' ' + trade.market1.currency + '\n' + JSON.stringify(wallet).replace(/{/g, '\n').replace(/}/g, '\n').replace(/,/g, '\n').trim() : initStamp;
 
   fs.access(fileName, fs.constants.F_OK, (err) => {
     if (err) {
