@@ -51,15 +51,15 @@ const trader = {
 
     // amounts to trade with based on wallet
     let startAsset = startCurrency = 0;
-    
+
     // set amounts to trade with
     if (useCurrency) {
-      startAsset = paperWallet[trade.market2.market][trade.market1.currency];
+      startAsset = paperWallet[trade.market1.market][trade.market1.asset];
       startCurrency = paperWallet[trade.market1.market][trade.market1.asset] * trade.market2.ask / (1 - trade.market2.fees.taker);
     }
     else {
-      startAsset = paperWallet[trade.market2.market][trade.market1.currency] / trade.market2.ask * (1 - trade.market2.fees.taker);
-      startCurrency = paperWallet[trade.market1.market][trade.market1.asset];
+      startAsset = paperWallet[trade.market2.market][trade.market2.currency] / trade.market2.ask * (1 - trade.market2.fees.taker);
+      startCurrency = paperWallet[trade.market2.market][trade.market2.currency];
     }
     return { startAsset, startCurrency };
    }
