@@ -4,7 +4,7 @@ const axios = require('axios');
 const Exchanges = require('./exchanges/exchanges');
 
 // paper wallets for each exchange - local testing only - will use apis later
-const paperWallet = require('./utils/wallets');
+let paperWallet = require('./utils/wallets');
 
 // paper trader - for executing trades - local testing only - will add method to each exchange matching with api specs
 const paperTrader = require('./utils/trader');
@@ -15,7 +15,16 @@ const Calc = require('./utils/calculations');
 // logger
 const log = require('./utils/logger');
 
+let runs = 0;
 const init = () => {
+  // start logging with init wallet amount for paper trading
+  if(runs === 0) {
+    log('', paperWallet, 'trade_log.txt');
+  }
+  
+  // keeps track of the runs on init
+  runs++;
+
   // get all exchange ticker data
   axios.all([ Exchanges.gdax.getTicker(), Exchanges.poloniex.getTicker(), Exchanges.binance.getTicker()])
   .then(axios.spread((gdax, poloniex, binance) => {
@@ -27,8 +36,7 @@ const init = () => {
       paperWallet = paperTrader.execute(trade, paperWallet);
       
       // log trade and start over again
-      const tradeLog = Date.now() + ' Traded ' + trade.market1.asset + trade.market1.currency + ' between ' + trade.market1.market + ' and ' + trade.market2.market + ' for a net of ' + trade.net;
-      log(tradeLog, 'trade_log.txt', init);
+      log(trade, paperWallet, 'trade_log.txt', init);
     } else {
       // else look again for another trade
       init();
