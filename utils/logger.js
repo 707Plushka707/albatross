@@ -56,7 +56,6 @@ const logger = (item, fileName, addTime = false, callback) => {
 };
 
 logger.getTradeString = (trade, paperWallet, start = true) => {
-  // log trade and start over again
   let tradeStr = '';
 
   if (start) {
