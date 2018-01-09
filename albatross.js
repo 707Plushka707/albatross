@@ -19,7 +19,7 @@ let runs = 0;
 const init = () => {
   // start logging with init wallet amount for paper trading
   if(runs === 0) {
-    log('', paperWallet, 'trade_log.txt');
+    log('$$$$$$$$======STARTING AN ALBATROSS SESSION=======$$$$$$\n', 'trade_log.txt', true, null);
   }
   
   // keeps track of the runs on init
@@ -32,11 +32,14 @@ const init = () => {
     const trade = Calc.getTrade(Exchanges.groupByCoin([...gdax, ...poloniex, ...binance].filter((m) => m)), paperWallet);
 
     if (trade) {
-      // execute a trade - paper only for local testing - apis later
+      // before trade log
+      log(log.getTradeString(trade, paperWallet, true), 'trade_log.txt', true, init);
+
+      // exe a trade
       paperWallet = paperTrader.execute(trade, paperWallet);
-      
-      // log trade and start over again
-      log(trade, paperWallet, 'trade_log.txt', init);
+
+      // after trade log
+      log(log.getTradeString(trade, paperWallet, false), 'trade_log.txt', false, init);
     } else {
       // else look again for another trade
       init();

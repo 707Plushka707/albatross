@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const logger = (trade = '', wallet, fileName, callback) => {
+const logger = (item, fileName, addTime = false, callback) => {
   const getTimeStamp = () => {
     const today = new Date();
     let dd = today.getDate();
@@ -20,13 +20,19 @@ const logger = (trade = '', wallet, fileName, callback) => {
   };
 
   const timeStamp = getTimeStamp();
-  const initStamp = timeStamp + ' $$$$$$$$======STARTING AN ALBATROSS SESSION=======$$$$$$' + '\n' + JSON.stringify(wallet).replace(/{/g, '\n').replace(/}/g, '\n').replace(/,/g, '\n').trim();
+  let logStr = item;
 
-  const tradeLog = trade !== '' ? timeStamp + ' Traded ' + trade.market1.asset + trade.market1.currency + ' between ' + trade.market1.market + ' and ' + trade.market2.market + ' for a net of ' + trade.net + ' ' + trade.market1.currency + '\n' + JSON.stringify(wallet).replace(/{/g, '\n').replace(/}/g, '\n').replace(/,/g, '\n').trim() : initStamp;
+  if(typeof logStr === 'object') {
+    logStr = JSON.stringify(logStr).replace(/{/g, '\n').replace(/}/g, '\n').replace(/,/g, '\n').trim();
+  }
+
+  if(addTime) {
+    logStr = timeStamp + '\n' + logStr;
+  }
 
   fs.access(fileName, fs.constants.F_OK, (err) => {
     if (err) {
-      fs.writeFile(fileName, tradeLog, (err) => {  
+      fs.writeFile(fileName, logStr, (err) => {  
         if (err) {
           throw err;
         }
@@ -37,7 +43,7 @@ const logger = (trade = '', wallet, fileName, callback) => {
       });
     }
 
-    fs.appendFile(fileName, '\n\n' + tradeLog, (err) => {  
+    fs.appendFile(fileName, '\n' + logStr, (err) => {  
       if (err) {
         throw err;
       }
@@ -48,5 +54,25 @@ const logger = (trade = '', wallet, fileName, callback) => {
     });
   });
 };
+
+logger.getTradeString = (trade, paperWallet, start = true) => {
+  // log trade and start over again
+  let tradeStr = '';
+
+  if (start) {
+    tradeStr = '\nBEFORE TRADE\nTrade ' + trade.market1.asset + ' to ' + trade.market1.currency + ' on ' + trade.market1.market + ' and ' + trade.market2.currency + ' to ' + trade.market2.asset + ' on ' + trade.market2.market;
+  }
+
+  tradeStr += '\nAFTER TRADE\n' + trade.market1.market.toUpperCase() + ': ' + trade.market1.asset + ': ' +  paperWallet[trade.market1.market][trade.market1.asset];
+  tradeStr += ' ' + trade.market1.currency + ': ' +  paperWallet[trade.market1.market][trade.market1.currency];
+  tradeStr += '\n' + trade.market2.market.toUpperCase() + ': ' + trade.market2.asset + ': ' +  paperWallet[trade.market2.market][trade.market2.asset];
+  tradeStr += ' ' + trade.market2.currency + ': ' +  paperWallet[trade.market2.market][trade.market2.currency];
+
+  if (!start) {
+    tradeStr += '\nNET: ' + trade.net + '\n\n=====================================================\n';
+  }
+
+  return tradeStr;
+}
 
 module.exports = logger;
