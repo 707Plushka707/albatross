@@ -3,8 +3,11 @@ const axios = require('axios');
 // apis for each exchange
 const Exchanges = require('./exchanges/exchanges');
 
-// wallets for each exchange
+// paper wallets for each exchange - local testing only - will use apis later
 const paperWallet = require('./utils/wallets');
+
+// paper trader - for executing trades - local testing only - will add method to each exchange matching with api specs
+const paperTrader = require('./utils/trader');
 
 // math utilities
 const Calc = require('./utils/calculations');
@@ -20,12 +23,14 @@ const init = () => {
     const trade = Calc.getTrade(Exchanges.groupByCoin([...gdax, ...poloniex, ...binance].filter((m) => m)), paperWallet);
 
     if (trade) {
-      console.log('TRADING: ', trade);
-      // TODO: exe a trade - exchange 1 (asset for cur) && exchange 2 (cur for asset) - check on this with al
-      const tradeLog = Date.now() + ' Traded ' + trade.market1.asset + trade.market1.currency + ' between ' + trade.market1.market + ' and ' + trade.market2.market + ' for a net of ' + trade.net;
+      // execute a trade - paper only for local testing - apis later
+      paperWallet = paperTrader.execute(trade, paperWallet);
+      
       // log trade and start over again
+      const tradeLog = Date.now() + ' Traded ' + trade.market1.asset + trade.market1.currency + ' between ' + trade.market1.market + ' and ' + trade.market2.market + ' for a net of ' + trade.net;
       log(tradeLog, 'trade_log.txt', init);
     } else {
+      // else look again for another trade
       init();
     }
   })).catch(error => {
@@ -33,4 +38,5 @@ const init = () => {
   });
 };
 
+// start looking for trades
 init();
