@@ -1,6 +1,6 @@
 const wallets = {
 	gdax: {
-		'BTC': 0.30458816,
+		'BTC': 0.10458816,
 		'LTC': 7.86809899,
 		'ETH': 4.74578409
 	},
@@ -23,7 +23,7 @@ const wallets = {
     'ZRX': 252.9492211
 	},
 	binance: {
-		'BTC': 0.01,
+		'BTC': 0.21,
 		'LTC': 0,
     'ETH': 0,
     'DASH': 0,
