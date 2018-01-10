@@ -1,10 +1,11 @@
 const axios = require('axios');
 const Poloniex = require('poloniex-api-node');
 const poloniex = new Poloniex();
+const keys = require('./keys').poloniex;
 const mapTicker = (name, bid, ask, market, asset, currency) => { return { name, bid, ask, market, asset, currency } };
 const coins = ['BTC_LTC', 'BTC_ETH', 'BTC_BTS', 'BTC_DASH', 'ETH_ETC', 'BTC_GAS', 'BTC_LSK', 'ETH_LSK', 'BTC_NAV', 'BTC_OMG', 'ETH_OMG', 'BTC_STORJ', 'BTC_STRAT', 'BTC_XMR', 'BTC_XRP', 'BTC_ZEC', 'ETH_ZEC', 'BTC_ZRX', 'ETH_ZRX'];
-poloniex.secret = 'pKey';
-poloniex.privateKey = 'pSec';
+poloniex.secret = keys.privateKey;
+poloniex.privateKey = keys.secret;
 poloniex.fees = {
   maker: 0.0015,
   taker: 0.0025

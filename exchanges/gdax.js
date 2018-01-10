@@ -1,10 +1,11 @@
 const axios = require('axios');
 const Gdax = require('gdax');
 const gdax = new Gdax.PublicClient();
+const keys = require('./keys').gdax;
 const mapTicker = (name, bid, ask, market, asset, currency) => { return { name, bid, ask, market, asset, currency } };
 
-gdax.secret = 'gKey';
-gdax.privateKey = 'gSec';
+gdax.secret = keys.privateKey;
+gdax.privateKey = keys.secret;
 gdax.fees = {
   maker: 0,
   taker: 0.0025
