@@ -21,7 +21,7 @@ gdax.getTicker = () => axios.all([gdax.getProductTicker('ETH-BTC'), gdax.getProd
     return [eth, ltc].map((item) => mapTicker(item.name, item.bid, item.ask, 'gdax', item.asset, item.currency));
   }))
   .catch((error) => {
-    console.log(error);
+    return [];
   });
 
 module.exports = gdax;

@@ -28,7 +28,7 @@ binance.getTicker = () => axios.all([binance.allBookTickers()])
   });
 })
 .catch((error) => {
-  console.log(error);
+  return [];
 });
 
 module.exports = binance;

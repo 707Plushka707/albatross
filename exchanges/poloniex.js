@@ -27,7 +27,7 @@ poloniex.getTicker = () => axios.all([poloniex.returnTicker()])
     return ticker.map((item) => mapTicker(item.name, item.highestBid, item.lowestAsk, 'poloniex', item.asset, item.currency));
   })
   .catch((error) => {
-    console.log(error);
+    return [];
   });
 
 module.exports = poloniex;

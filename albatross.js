@@ -50,7 +50,8 @@ const init = () => {
       init();
     }
   })).catch(error => {
-    console.log(error);
+    // just look again
+    init();
   });
 };
 
