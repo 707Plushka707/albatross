@@ -16,6 +16,11 @@ const Calc = require('./utils/calculations');
 const log = require('./utils/logger');
 let runs = 0;
 
+// log the wallet on close
+process.on('SIGINT', () => {
+  log(paperWallet, 'trade_log.txt', true, process.exit);
+});
+
 const init = () => {
   // start logging with init wallet amount for paper trading
   if(runs === 0) {
