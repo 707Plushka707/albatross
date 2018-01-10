@@ -33,22 +33,14 @@ const logger = (item, fileName, addTime = false, callback) => {
   fs.access(fileName, fs.constants.F_OK, (err) => {
     if (err) {
       fs.writeFile(fileName, logStr, (err) => {  
-        if (err) {
-          throw err;
-        }
-
-        if (callback) {
+        if (callback || err) {
           callback();
         }
       });
     }
 
     fs.appendFile(fileName, '\n' + logStr, (err) => {  
-      if (err) {
-        throw err;
-      }
-
-      if (callback) {
+      if (callback || err) {
         callback();
       }
     });
