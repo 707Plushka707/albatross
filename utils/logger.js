@@ -5,6 +5,9 @@ class Logger {
     const today = new Date();
     let dd = today.getDate();
     let mm = today.getMonth() + 1;
+    let hh = today.getHours();
+    let mins = today.getMinutes();
+    let ss = today.getSeconds();
     const yyyy = today.getFullYear();
 
     if (dd < 10) {
@@ -15,7 +18,7 @@ class Logger {
       mm = '0' + mm;
     }
 
-    return mm + '-' + dd + '-' + yyyy;
+    return mm + '-' + dd + '-' + yyyy + ' at ' + hh + ':' + mins + ':' + ss;
   }
 
   log(item, fileName, addTime = false, callback) {
@@ -48,6 +51,8 @@ class Logger {
 
     if (start) {
       tradeStr =
+        '\n' +
+        this.getTimeStamp() +
         '\nBEFORE TRADE\nTrade ' +
         trade.market1.asset +
         ' to ' +
