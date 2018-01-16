@@ -31,7 +31,18 @@ class Trader {
     }
 
     // return the updated wallet after the trade is complete
-    return newWallet;
+    return {
+      newWallet,
+      data: {
+        asset: limits.startAsset,
+        currency: limits.startCurrency,
+        gain:
+          limits.startAsset *
+            trade.market1.bid *
+            (1 - trade.market1.fees.taker) -
+          limits.startCurrency
+      }
+    };
   }
 
   getLimits(trade, paperWallet) {
@@ -85,7 +96,7 @@ class Trader {
   // compares all coins market prices. if margin meets trigger. return trade
   getTrade(coins, paperWallet) {
     // constants
-    const TRIGGER = 0;
+    const TRIGGER = 0.005;
     // trade to return
     let trade = {};
 

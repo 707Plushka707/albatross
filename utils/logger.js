@@ -1,6 +1,14 @@
 const fs = require('fs');
 
 class Logger {
+  cleanJSON(jsonStr) {
+    return jsonStr
+      .slice(1)
+      .replace(/${|"/g, '')
+      .replace(/(:{|,|})/g, '\n')
+      .trim();
+  }
+
   getTimeStamp() {
     const today = new Date();
     let dd = today.getDate();
@@ -26,7 +34,7 @@ class Logger {
     let logStr = item;
 
     if (addTime) {
-      logStr = timeStamp + '\n' + logStr;
+      logStr = '\n' + timeStamp + '\n' + logStr;
     }
 
     fs.access(fileName, fs.constants.F_OK, err => {
@@ -46,62 +54,26 @@ class Logger {
     });
   }
 
-  getTradeString(trade, paperWallet, start = true) {
-    let tradeStr = '';
+  /*
+  date/time, trade counter, asset, currency, market1, market2, asset amt sold/bought, currency spent, currency gained
 
-    if (start) {
-      tradeStr =
-        '\n' +
-        this.getTimeStamp() +
-        '\nBEFORE TRADE\nTrade ' +
-        trade.market1.asset +
-        ' to ' +
-        trade.market1.currency +
-        ' on ' +
-        trade.market1.market +
-        ' and ' +
-        trade.market2.currency +
-        ' to ' +
-        trade.market2.asset +
-        ' on ' +
-        trade.market2.market +
-        '\n';
-    } else {
-      tradeStr = '\n\nAFTER TRADE\n';
-    }
+  for example:
+  "1/15/18 10:04 AM", 1, "LTC", "ETH", "poloniex", "bittrex", 0.52099311523, 0.0163452892, 0.01637623461
+  */
+  getTradeString(trade) {
+    const tradeString = [
+      this.getTimeStamp(),
+      trade.count,
+      trade.market1.asset,
+      trade.market1.currency,
+      trade.market1.market,
+      trade.market2.market,
+      trade.data.asset,
+      trade.data.currency,
+      trade.data.gain
+    ].join(', ');
 
-    tradeStr +=
-      trade.market1.market.toUpperCase() +
-      ': ' +
-      trade.market1.asset +
-      ': ' +
-      paperWallet[trade.market1.market][trade.market1.asset];
-    tradeStr +=
-      ' ' +
-      trade.market1.currency +
-      ': ' +
-      paperWallet[trade.market1.market][trade.market1.currency];
-    tradeStr +=
-      '\n' +
-      trade.market2.market.toUpperCase() +
-      ': ' +
-      trade.market2.asset +
-      ': ' +
-      paperWallet[trade.market2.market][trade.market2.asset];
-    tradeStr +=
-      ' ' +
-      trade.market2.currency +
-      ': ' +
-      paperWallet[trade.market2.market][trade.market2.currency];
-
-    if (!start) {
-      tradeStr +=
-        '\nNET: ' +
-        trade.net +
-        '\n\n=====================================================\n';
-    }
-
-    return tradeStr;
+    return tradeString;
   }
 }
 
