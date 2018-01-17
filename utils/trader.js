@@ -96,7 +96,7 @@ class Trader {
   // compares all coins market prices. if margin meets trigger. return trade
   getTrade(coins, paperWallet) {
     // constants
-    const TRIGGER = 0.005;
+    const TRIGGER = 0.0025;
     // trade to return
     let trade = {};
 
