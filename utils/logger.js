@@ -26,7 +26,7 @@ class Logger {
       mm = '0' + mm;
     }
 
-    return mm + '-' + dd + '-' + yyyy + ' at ' + hh + ':' + mins + ':' + ss;
+    return mm + '-' + dd + '-' + yyyy + ', ' + hh + ':' + mins + ':' + ss;
   }
 
   log(item, fileName, addTime = false, callback) {

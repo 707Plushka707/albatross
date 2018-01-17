@@ -1,5 +1,6 @@
 const poloniex = require('./poloniex');
 const binance = require('./binance');
+const bittrex = require('./bittrex');
 // const gdax = require('./gdax');
 
 const groupByCoin = markets => {
@@ -26,11 +27,13 @@ const groupByCoin = markets => {
 const fees = {
   // gdax: gdax.fees,
   binance: binance.fees,
+  bittrex: bittrex.fees,
   poloniex: poloniex.fees
 };
 
 module.exports = {
   // gdax,
+  bittrex,
   poloniex,
   binance,
   groupByCoin,

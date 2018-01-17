@@ -25,5 +25,8 @@
     "binance": "^1.1.2",
     "gdax": "github:coinbase/gdax-node",
     "poloniex-api-node": "^1.6.5"
+  },
+  "devDependencies": {
+    "node-bittrex-api": "^0.8.1"
   }
 }

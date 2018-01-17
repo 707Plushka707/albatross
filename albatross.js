@@ -28,17 +28,23 @@ let tradeCount = 0;
 const init = () => {
   // get all exchange ticker data
   axios
-    .all([exchanges.poloniex.getTicker(), exchanges.binance.getTicker()])
+    .all([
+      exchanges.poloniex.getTicker(),
+      exchanges.binance.getTicker(),
+      exchanges.bittrex.getTicker()
+    ])
     .then(
-      axios.spread((poloniex, binance) => {
+      axios.spread((poloniex, binance, bittrex) => {
         // compare all possible market pairs for each coin - makes sure they arent undefined
         const trade = paperTrader.getTrade(
-          exchanges.groupByCoin([...poloniex, ...binance].filter(m => m)),
+          exchanges.groupByCoin(
+            [...poloniex, ...binance, ...bittrex].filter(m => m)
+          ),
           paperWallet
         );
 
         if (trade) {
-          // exe a trade
+          // exe a paper trade
           const traded = paperTrader.executeTrade(trade, paperWallet);
           paperWallet = traded.newWallet;
 
@@ -49,8 +55,8 @@ const init = () => {
 
           // non paper trade notes
           // sell on market 1, buy on market 2
-          // const sellExchange = exchanges[trade.market1.market];
-          // const buyExchange = exchanges[trade.market2.market];
+          const sellExchange = exchanges[trade.market1.market];
+          const buyExchange = exchanges[trade.market2.market];
           // axios.all([
           //   sellExchange.sell(),
           //   buyExchange.buy()
