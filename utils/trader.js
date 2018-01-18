@@ -10,6 +10,31 @@ class Trader {
     return meetsMin;
   }
 
+  truncate(num = 0, decimals = 0) {
+    if (!num || typeof num !== 'number') {
+      return false;
+    }
+
+    if (
+      num
+        .toString()
+        .split('.')
+        .pop().length < decimals ||
+      num.toString().indexOf('.') < 0 ||
+      decimals <= 0
+    ) {
+      return num;
+    }
+
+    const getTruncated = new RegExp('^-?\\d+(?:\\.\\d{0,' + decimals + '})?');
+    return parseFloat(
+      num
+        .toString()
+        .match(getTruncated)
+        .shift()
+    );
+  }
+
   executeTrade(trade, paperWallet) {
     // find limiting asset/currency
     const limits = this.getLimits(trade, paperWallet);
