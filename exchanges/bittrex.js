@@ -1,31 +1,18 @@
 const axios = require('axios');
 const bittrex = require('node-bittrex-api');
 const keys = require('./keys').bittrex;
+const pairs = require('./pairs')
+  .getExchangePairs('bittrex')
+  .map(name =>
+    name
+      .split('-')
+      .reverse()
+      .join('-')
+  );
+
 const mapTicker = (name, bid, ask, market, asset, currency) => {
   return { name, bid, ask, market, asset, currency };
 };
-
-const coins = [
-  'BTC-ETH',
-  'BTC-LTC',
-  'BTC-BTS',
-  'BTC-DASH',
-  'ETH-ETC',
-  'BTC-GAS',
-  'BTC-LSK',
-  'ETH-LSK',
-  'BTC-NAV',
-  'BTC-OMG',
-  'ETH-OMG',
-  'BTC-STORJ',
-  'BTC-STRAT',
-  'BTC-XMR',
-  'BTC-XRP',
-  'BTC-ZEC',
-  'ETH-ZEC',
-  'BTC-ZRX',
-  'ETH-ZRX'
-];
 
 bittrex.options({
   apikey: keys.privateKey,
@@ -33,8 +20,8 @@ bittrex.options({
 });
 
 bittrex.fees = {
-  maker: 0.001,
-  taker: 0.001
+  maker: 0.0025,
+  taker: 0.0025
 };
 
 const getTickerData = param => {
@@ -66,7 +53,7 @@ bittrex.getTicker = () =>
 
       for (let coin in marketHistory) {
         // if you can trade this coin
-        if (coins.indexOf(marketHistory[coin].MarketName) >= 0) {
+        if (pairs.indexOf(marketHistory[coin].MarketName) >= 0) {
           promises.push(
             getTickerData({ market: marketHistory[coin].MarketName })
           );

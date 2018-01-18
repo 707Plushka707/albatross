@@ -2,6 +2,8 @@ const axios = require('axios');
 const Gdax = require('gdax');
 const gdax = new Gdax.PublicClient();
 const keys = require('./keys').gdax;
+const pairs = require('./pairs').getExchangePairs('gdax');
+
 const mapTicker = (name, bid, ask, market, asset, currency) => {
   return { name, bid, ask, market, asset, currency };
 };
@@ -12,9 +14,10 @@ gdax.fees = {
   maker: 0,
   taker: 0.0025
 };
+
 gdax.getTicker = () =>
   axios
-    .all([gdax.getProductTicker('ETH-BTC'), gdax.getProductTicker('LTC-BTC')])
+    .all(pairs.map(p => gdax.getProductTicker(p)))
     .then(
       axios.spread((eth, ltc) => {
         eth.name = 'ETHBTC';

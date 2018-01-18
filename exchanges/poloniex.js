@@ -2,30 +2,19 @@ const axios = require('axios');
 const Poloniex = require('poloniex-api-node');
 const poloniex = new Poloniex();
 const keys = require('./keys').poloniex;
+const pairs = require('./pairs')
+  .getExchangePairs('poloniex')
+  .map(name =>
+    name
+      .split('-')
+      .reverse()
+      .join('_')
+  );
+
 const mapTicker = (name, bid, ask, market, asset, currency) => {
   return { name, bid, ask, market, asset, currency };
 };
-const coins = [
-  'BTC_LTC',
-  'BTC_ETH',
-  'BTC_BTS',
-  'BTC_DASH',
-  'ETH_ETC',
-  'BTC_GAS',
-  'BTC_LSK',
-  'ETH_LSK',
-  'BTC_NAV',
-  'BTC_OMG',
-  'ETH_OMG',
-  'BTC_STORJ',
-  'BTC_STRAT',
-  'BTC_XMR',
-  'BTC_XRP',
-  'BTC_ZEC',
-  'ETH_ZEC',
-  'BTC_ZRX',
-  'ETH_ZRX'
-];
+
 poloniex.secret = keys.privateKey;
 poloniex.privateKey = keys.secret;
 poloniex.fees = {
@@ -40,7 +29,7 @@ poloniex.getTicker = () =>
       const ticker = [];
 
       for (coin in fullTicker) {
-        if (coins.indexOf(coin) >= 0) {
+        if (pairs.indexOf(coin) >= 0) {
           fullTicker[coin].name = coin
             .split('_')
             .reverse()
