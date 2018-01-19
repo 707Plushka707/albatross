@@ -1,7 +1,10 @@
 const axios = require('axios');
 const Binance = require('binance');
-const binance = new Binance.BinanceRest({ key: '', secret: '' });
 const keys = require('./keys').binance;
+const binance = new Binance.BinanceRest({
+  key: keys.privateKey,
+  secret: keys.secret
+});
 const pairs = require('./pairs').getExchangePairs('binance');
 const coins = pairs.map(name => name.replace('-', ''));
 const currencies = pairs.reduce((currs, name) => {
@@ -16,8 +19,6 @@ const mapTicker = (name, bid, ask, market, asset, currency) => {
   return { name, bid, ask, market, asset, currency };
 };
 
-binance.secret = keys.privateKey;
-binance.privateKey = keys.secret;
 binance.fees = {
   maker: 0.001,
   taker: 0.001
@@ -50,5 +51,33 @@ binance.getTicker = () =>
     .catch(error => {
       return [];
     });
+
+/*
+    Trading
+    Params
+    pair: coin pair object. for this exchange its in the format ASSETCURR ex: ETHBTC
+    rate: the price
+    amount: the amount to buy or sell
+    fillOrKill: either fills order immediately in full or aborts. Set to 1 to activate
+*/
+binance.buyOrder = (pair, rate, amount, fillOrKill = 0) =>
+  binance.newOrder({
+    symbol: pair.asset + pair.currency,
+    side: 'BUY',
+    type: 'MARKET',
+    quantity: amount,
+    timestamp: Date.now()
+  });
+
+binance.sellOrder = (pair, rate, amount, fillOrKill = 0) =>
+  binance.newOrder({
+    symbol: pair.asset + pair.currency,
+    side: 'SELL',
+    type: 'MARKET',
+    quantity: amount,
+    timestamp: Date.now()
+  });
+
+binance.checkOrder = pair => binance.openOrders(pair.asset + pair.currency);
 
 module.exports = binance;

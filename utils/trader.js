@@ -1,5 +1,6 @@
 const FEES = require('./../exchanges/exchanges').fees;
 
+/* Used to find, calculate and execute trades */
 class Trader {
   canTrade(market1, market2, paperWallet) {
     const MIN_TRADE = 0.0003;
@@ -10,7 +11,7 @@ class Trader {
     return meetsMin;
   }
 
-  truncate(num = 0, decimals = 0) {
+  truncateAmount(num = 0, decimals = 0) {
     if (!num || typeof num !== 'number') {
       return false;
     }

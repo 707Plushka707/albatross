@@ -1,7 +1,8 @@
 const axios = require('axios');
 const Poloniex = require('poloniex-api-node');
-const poloniex = new Poloniex();
 const keys = require('./keys').poloniex;
+const poloniex = new Poloniex(keys.privateKey, keys.secret);
+
 const pairs = require('./pairs')
   .getExchangePairs('poloniex')
   .map(name =>
@@ -15,12 +16,11 @@ const mapTicker = (name, bid, ask, market, asset, currency) => {
   return { name, bid, ask, market, asset, currency };
 };
 
-poloniex.secret = keys.privateKey;
-poloniex.privateKey = keys.secret;
 poloniex.fees = {
   maker: 0.0015,
   taker: 0.0025
 };
+
 poloniex.getTicker = () =>
   axios
     .all([poloniex.returnTicker()])
@@ -54,5 +54,22 @@ poloniex.getTicker = () =>
     .catch(error => {
       return [];
     });
+
+/*
+    Trading
+    Params
+    pair: coin pair object. for this exchange its in the format CUR_ASSET ex: BTC_ETH
+    rate: the price
+    amount: the amount to buy or sell
+    fillOrKill: either fills order immediately in full or aborts. Set to 1 to activate
+*/
+poloniex.buyOrder = (pair, rate, amount, fillOrKill = 0) =>
+  poloniex.buy(pair.currency + '_' + pair.asset, rate, amount, fillOrKill);
+
+poloniex.sellOrder = (pair, rate, amount, fillOrKill = 0) =>
+  poloniex.sell(pair.currency + '_' + pair.asset, rate, amount, fillOrKill);
+
+poloniex.checkOrder = pair =>
+  poloniex.returnOpenOrders(pair.currency + '_' + pair.asset);
 
 module.exports = poloniex;

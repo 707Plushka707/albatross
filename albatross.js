@@ -57,9 +57,10 @@ const init = () => {
           // sell on market 1, buy on market 2
           const sellExchange = exchanges[trade.market1.market];
           const buyExchange = exchanges[trade.market2.market];
+
           // axios.all([
-          //   sellExchange.sell(),
-          //   buyExchange.buy()
+          //   sellExchange.sellOrder(),
+          //   buyExchange.buyOrder()
           // ]).then(axios.spread((sellOrder, buyOrder) => {
           //   // order status is pending at this point need to constantly check if they are both done
           //   sellExchange.getOrderStatus(sellOrder.id);
