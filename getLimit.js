@@ -1,4 +1,7 @@
 // this is meant to replace the if (useCurrency)...else statement in getLimit
+// PRECISIONS[trade.market1.asset + '-' + trade.market1.currency][trade.market1.market]
+//  const m1Precision = PRECISIONS[trade.market1.asset + '-' + trade.market1.currency][trade.market1.market];
+//  const m2Precision = PRECISIONS[trade.market1.asset + '-' + trade.market1.currency][trade.market2.market];
 if (useCurrency) {
   // asset is limiting amount
   startAsset = paperWallet[trade.market1.market][trade.market1.asset];
@@ -6,7 +9,6 @@ if (useCurrency) {
     startAsset *
     trade.market2.ask /
     (1 - trade.market2.fees.taker);
-
   if (market1.market = 'binance') {
     // selling assset on binance so we limit the asset sale to the amount we're allowed to sell
     startAsset = truncate(startAsset, limitDigits[trade.market1.market][trade.market1.asset]);

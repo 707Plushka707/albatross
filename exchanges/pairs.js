@@ -119,6 +119,12 @@ const config = [{
 class Pairs {
   constructor(coins) {
     this.pairs = coins;
+    this.precisions = coins.reduce((ps, p) => {
+      if (!ps[p.name]) {
+        ps[p.name] = p.precision;
+      }
+      return ps;
+    }, {});
   }
 
   // give a market name and return active pairs traded on that market. only need the name returned

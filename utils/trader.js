@@ -1,4 +1,5 @@
 const FEES = require('./../exchanges/exchanges').fees;
+const PRECISIONS = require('./../exchanges/exchanges').precisions;
 
 /* Used to find, calculate and execute trades */
 class Trader {
@@ -18,9 +19,9 @@ class Trader {
 
     if (
       num
-        .toString()
-        .split('.')
-        .pop().length < decimals ||
+      .toString()
+      .split('.')
+      .pop().length < decimals ||
       num.toString().indexOf('.') < 0 ||
       decimals <= 0
     ) {
@@ -30,9 +31,9 @@ class Trader {
     const getTruncated = new RegExp('^-?\\d+(?:\\.\\d{0,' + decimals + '})?');
     return parseFloat(
       num
-        .toString()
-        .match(getTruncated)
-        .shift()
+      .toString()
+      .match(getTruncated)
+      .shift()
     );
   }
 
@@ -62,22 +63,22 @@ class Trader {
       data: {
         asset: limits.startAsset,
         currency: limits.startCurrency,
-        gain:
-          limits.startAsset *
-            trade.market1.bid *
-            (1 - trade.market1.fees.taker) -
+        gain: limits.startAsset *
+          trade.market1.bid *
+          (1 - trade.market1.fees.taker) -
           limits.startCurrency
       }
     };
   }
 
   getLimits(trade, paperWallet) {
+    console.log(trade);
     /* if the theoretical output of the market2 trade using the total amount of currency in market2's wallet is greater than the amount of asset in       market1's wallet, then work backwards from the amount of asset in market1's wallet to find the amount of currency to transact in market2
        otherwise, set the amount of asset to sell on market1 = to the theoretical output with the full amount of currency in market2's wallet */
     const useCurrency =
       paperWallet[trade.market2.market][trade.market2.currency] /
-        trade.market2.ask *
-        (1 - trade.market2.fees.taker) >
+      trade.market2.ask *
+      (1 - trade.market2.fees.taker) >
       paperWallet[trade.market1.market][trade.market1.asset];
 
     // amounts to trade with based on wallet
@@ -98,7 +99,10 @@ class Trader {
         (1 - trade.market2.fees.taker);
       startCurrency = paperWallet[trade.market2.market][trade.market2.currency];
     }
-    return { startAsset, startCurrency };
+    return {
+      startAsset,
+      startCurrency
+    };
   }
 
   getMargin(market1, market2, paperWallet) {
@@ -157,7 +161,11 @@ class Trader {
           // see if either pair beats the current trades net
           // TODO: if exchange 1 and exchange 2 wallets have x amounts for asset and currency
           if (m1ToM2 > m2ToM1) {
-            trade = updateTrade(trade, { market1, market2, net: m1ToM2 });
+            trade = updateTrade(trade, {
+              market1,
+              market2,
+              net: m1ToM2
+            });
           } else {
             trade = updateTrade(trade, {
               market1: market2,
