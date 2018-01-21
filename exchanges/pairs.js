@@ -1,8 +1,13 @@
-const config = [
-  {
+const config = [{
     name: 'ETH-BTC',
     active: true,
-    tradedOn: ['binance', 'bittrex', 'gdax', 'poloniex']
+    tradedOn: ['binance', 'bittrex', 'gdax', 'poloniex'],
+    precision: {
+      binance: 1,
+      bittrex: 10,
+      gdax: 20,
+      poloniex: 13
+    }
   },
   {
     name: 'LTC-BTC',
