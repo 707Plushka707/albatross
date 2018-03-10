@@ -30,15 +30,14 @@ const init = () => {
   axios
     .all([
       exchanges.poloniex.getTicker(),
-      exchanges.binance.getTicker(),
-      exchanges.bittrex.getTicker()
+      exchanges.binance.getTicker()
     ])
     .then(
-      axios.spread((poloniex, binance, bittrex) => {
+      axios.spread((poloniex, binance) => {
         // compare all possible market pairs for each coin - makes sure they arent undefined
         const trade = paperTrader.getTrade(
           exchanges.groupByCoin(
-            [...poloniex, ...binance, ...bittrex].filter(m => m)
+            [...poloniex, ...binance].filter(m => m)
           ),
           paperWallet
         );
