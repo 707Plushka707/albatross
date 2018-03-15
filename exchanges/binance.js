@@ -16,7 +16,14 @@ const currencies = pairs.reduce((currs, name) => {
 }, []);
 
 const mapTicker = (name, bid, ask, market, asset, currency) => {
-  return { name, bid, ask, market, asset, currency };
+  return {
+    name,
+    bid,
+    ask,
+    market,
+    asset,
+    currency
+  };
 };
 
 binance.fees = {
@@ -25,32 +32,50 @@ binance.fees = {
 };
 binance.getTicker = () =>
   axios
-    .all([binance.allBookTickers()])
-    .then(response => {
-      const ticker = response[0].filter(c => coins.indexOf(c.symbol) >= 0);
-      return ticker.map(item => {
-        for (let i = 0; i < currencies.length; i++) {
-          const c = currencies[i];
-          if (item.symbol.indexOf(c) >= 0) {
-            item.currency = c;
-            item.asset = item.symbol.replace(c, '');
-            break;
-          }
+  .all([binance.allBookTickers()])
+  .then(response => {
+    const ticker = response[0].filter(c => coins.indexOf(c.symbol) >= 0);
+    return ticker.map(item => {
+      for (let i = 0; i < currencies.length; i++) {
+        const c = currencies[i];
+        if (item.symbol.indexOf(c) >= 0) {
+          item.currency = c;
+          item.asset = item.symbol.replace(c, '');
+          break;
         }
+      }
 
-        return mapTicker(
-          item.symbol,
-          item.bidPrice,
-          item.askPrice,
-          'binance',
-          item.asset,
-          item.currency
-        );
-      });
-    })
-    .catch(error => {
-      return [];
+      return mapTicker(
+        item.symbol,
+        item.bidPrice,
+        item.askPrice,
+        'binance',
+        item.asset,
+        item.currency
+      );
     });
+  })
+  .catch(error => {
+    return [];
+  });
+
+binance.getWallet = () =>
+  axios
+  .all([binance.account()])
+  .then(response => {
+    const allBalances = response[0].balances;
+    const wallet = {};
+
+    for (let i = 0; i < pairs.length; i++) {
+      const asset = pairs[i].split('-')[0];
+      wallet[asset] = parseFloat(allBalances.filter(b => b.asset === asset).pop().free);
+    }
+
+    return wallet;
+  })
+  .catch(error => {
+    return {};
+  });
 
 /*
     Trading

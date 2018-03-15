@@ -7,13 +7,20 @@ const pairs = require('./pairs')
   .getExchangePairs('poloniex')
   .map(name =>
     name
-      .split('-')
-      .reverse()
-      .join('_')
+    .split('-')
+    .reverse()
+    .join('_')
   );
 
 const mapTicker = (name, bid, ask, market, asset, currency) => {
-  return { name, bid, ask, market, asset, currency };
+  return {
+    name,
+    bid,
+    ask,
+    market,
+    asset,
+    currency
+  };
 };
 
 poloniex.fees = {
@@ -23,37 +30,56 @@ poloniex.fees = {
 
 poloniex.getTicker = () =>
   axios
-    .all([poloniex.returnTicker()])
-    .then(response => {
-      const fullTicker = response[0];
-      const ticker = [];
+  .all([poloniex.returnTicker()])
+  .then(response => {
+    const fullTicker = response[0];
+    const ticker = [];
 
-      for (coin in fullTicker) {
-        if (pairs.indexOf(coin) >= 0) {
-          fullTicker[coin].name = coin
-            .split('_')
-            .reverse()
-            .join('');
-          fullTicker[coin].asset = coin.split('_').pop();
-          fullTicker[coin].currency = coin.split('_').shift();
-          ticker.push(fullTicker[coin]);
-        }
+    for (coin in fullTicker) {
+      if (pairs.indexOf(coin) >= 0) {
+        fullTicker[coin].name = coin
+          .split('_')
+          .reverse()
+          .join('');
+        fullTicker[coin].asset = coin.split('_').pop();
+        fullTicker[coin].currency = coin.split('_').shift();
+        ticker.push(fullTicker[coin]);
       }
+    }
 
-      return ticker.map(item =>
-        mapTicker(
-          item.name,
-          item.highestBid,
-          item.lowestAsk,
-          'poloniex',
-          item.asset,
-          item.currency
-        )
-      );
-    })
-    .catch(error => {
-      return [];
-    });
+    return ticker.map(item =>
+      mapTicker(
+        item.name,
+        item.highestBid,
+        item.lowestAsk,
+        'poloniex',
+        item.asset,
+        item.currency
+      )
+    );
+  })
+  .catch(error => {
+    return [];
+  });
+
+poloniex.getWallet = () =>
+  axios
+  .all([poloniex.returnBalances()])
+  .then(response => {
+    const allBalances = response[0];
+    const wallet = {};
+
+    for (let i = 0; i < pairs.length; i++) {
+      const asset = pairs[i].split('_')[1];
+      wallet[asset] = parseFloat(allBalances[asset]);
+    }
+
+    return wallet;
+  })
+  .catch(error => {
+    console.log(error);
+    return {};
+  });
 
 /*
     Trading

@@ -8,6 +8,8 @@ const Trader = require('./utils/trader');
 const Logger = require('./utils/logger');
 // paper wallets for each exchange - local testing only - will use apis later
 let paperWallet = require('./utils/wallets');
+// temp for flagging paper trades or not
+let paperTrade = true;
 
 const logger = new Logger();
 
@@ -26,64 +28,78 @@ const paperTrader = new Trader();
 let tradeCount = 0;
 
 const init = () => {
-  // get all exchange ticker data
-  axios
-    .all([
-      exchanges.poloniex.getTicker(),
-      exchanges.binance.getTicker()
-    ])
-    .then(
-      axios.spread((poloniex, binance) => {
-        // compare all possible market pairs for each coin - makes sure they arent undefined
-        const trade = paperTrader.getTrade(
-          exchanges.groupByCoin(
-            [...poloniex, ...binance].filter(m => m)
-          ),
-          paperWallet
-        );
+  // get all the wallet information here 
+  axios.all([exchanges.poloniex.getWallet(), exchanges.binance.getWallet()]).then(
+    axios.spread((poloniexWallet, binanceWallet) => {
+      // the real wallet available balances - without keys you will get empty objs
+      let wallets = {
+        poloniex: poloniexWallet,
+        binance: binanceWallet
+      };
 
-        if (trade) {
-          // exe a paper trade
-          const traded = paperTrader.executeTrade(trade, paperWallet);
-          paperWallet = traded.newWallet;
+      axios
+        .all([
+          exchanges.poloniex.getTicker(),
+          exchanges.binance.getTicker()
+        ])
+        .then(
+          axios.spread((poloniex, binance) => {
+            // compare all possible market pairs for each coin - makes sure they arent undefined
+            const trade = paperTrader.getTrade(
+              exchanges.groupByCoin(
+                [...poloniex, ...binance].filter(m => m)
+              ),
+              paperWallet
+            );
 
-          // trade count inc
-          tradeCount++;
-          trade.count = tradeCount;
-          trade.data = traded.data;
+            if (trade) {
+              // exe a paper trade
+              const traded = paperTrader.executeTrade(trade, paperWallet);
+              paperWallet = traded.newWallet;
 
-          // non paper trade notes
-          // sell on market 1, buy on market 2
-          const sellExchange = exchanges[trade.market1.market];
-          const buyExchange = exchanges[trade.market2.market];
+              // trade count inc
+              tradeCount++;
+              trade.count = tradeCount;
+              trade.data = traded.data;
 
-          // axios.all([
-          //   sellExchange.sellOrder(),
-          //   buyExchange.buyOrder()
-          // ]).then(axios.spread((sellOrder, buyOrder) => {
-          //   // order status is pending at this point need to constantly check if they are both done
-          //   sellExchange.getOrderStatus(sellOrder.id);
-          //   buyExchange.getOrderStatus(buyOrder.id);
-          //   log the actual numbers after trade goes through
-          // });
+              // non paper trade notes
+              // sell on market 1, buy on market 2
+              const sellExchange = exchanges[trade.market1.market];
+              const buyExchange = exchanges[trade.market2.market];
 
-          // log the trade and go again
-          logger.log(
-            logger.getTradeString(trade),
-            'trade_log.txt',
-            false,
-            init
-          );
-        } else {
-          //  if no trade look again
-          init();
-        }
-      })
-    )
-    .catch(error => {
-      // just look again
-      init();
-    });
+              // axios.all([
+              //   sellExchange.sellOrder(),
+              //   buyExchange.buyOrder()
+              // ]).then(axios.spread((sellOrder, buyOrder) => {
+              //   // order status is pending at this point need to constantly check if they are both done
+              //   sellExchange.getOrderStatus(sellOrder.id);
+              //   buyExchange.getOrderStatus(buyOrder.id);
+              //   log the actual numbers after trade goes through
+              // });
+
+              // log the trade and go again
+              logger.log(
+                logger.getTradeString(trade),
+                'trade_log.txt',
+                false,
+                init
+              );
+            } else {
+              //  if no trade look again
+              init();
+            }
+          })
+        ).catch(error => {
+          // just look again
+          console.log(error);
+          // init();
+        });
+    })
+  ).catch(error => {
+    // just look again
+    console.log(error);
+    // init();
+  });
 };
 
 // log the wallet on close
