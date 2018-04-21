@@ -1,3 +1,5 @@
+// api helper
+const axios = require("axios");
 const FEES = require("./../exchanges/exchanges").fees;
 const PRECISIONS = require("./../exchanges/exchanges").precisions;
 
@@ -164,7 +166,7 @@ class Trader {
   // compares all coins market prices. if margin meets trigger. return trade
   getTrade(coins, paperWallet) {
     // constants
-    const TRIGGER = 0;
+    const TRIGGER = 0.0025;
     // trade to return
     let trade = {};
 
@@ -222,6 +224,34 @@ class Trader {
 
     // return the trade and all info needed to exec on any exchange
     return trade;
+  }
+
+  checkOrders(exchange1, exchange2, pair, callback) {
+    const areOrdersComplete = (exchange1, exchange2, pair) => {
+      return axios
+        .all([exchange1.getOrderStatus(pair), exchange2.getOrderStatus(pair)])
+        .then(
+          axios.spread((sellOrder, buyOrder) => {
+            if (buyOrder.length || sellOrder.length) {
+              return false;
+            }
+
+            return true;
+          })
+        )
+        .catch(err => console.log(err));
+    };
+
+    areOrdersComplete(exchange1, exchange2, pair)
+      .then(res => {
+        if (res) {
+          // log and go again
+          callback();
+        } else {
+          this.checkOrders(exchange1, exchange2, pair, callback);
+        }
+      })
+      .catch(err => console.log(err));
   }
 }
 

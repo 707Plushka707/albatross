@@ -70,6 +70,10 @@ binance.getWallet = () =>
       const allBalances = response[0].balances;
       const wallet = {};
 
+      wallet["BTC"] = parseFloat(
+        allBalances.filter(b => b.asset === "BTC").pop().free
+      );
+
       for (let i = 0; i < pairs.length; i++) {
         const asset = pairs[i].split("-")[0];
         wallet[asset] = parseFloat(
@@ -109,6 +113,6 @@ binance.sellOrder = (pair, rate, amount, fillOrKill = 0) =>
     timestamp: Date.now()
   });
 
-binance.checkOrder = pair => binance.openOrders(pair.asset + pair.currency);
+binance.getOrderStatus = pair => binance.openOrders(pair.asset + pair.currency);
 
 module.exports = binance;

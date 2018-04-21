@@ -76,6 +76,8 @@ poloniex.getWallet = () =>
       const allBalances = response[0];
       const wallet = {};
 
+      wallet["BTC"] = parseFloat(allBalances["BTC"]);
+
       for (let i = 0; i < pairs.length; i++) {
         const asset = pairs[i].split("_")[1];
         wallet[asset] = parseFloat(allBalances[asset]);
@@ -102,7 +104,7 @@ poloniex.buyOrder = (pair, rate, amount, fillOrKill = 0) =>
 poloniex.sellOrder = (pair, rate, amount, fillOrKill = 0) =>
   poloniex.sell(pair.currency + "_" + pair.asset, rate, amount, fillOrKill);
 
-poloniex.checkOrder = pair =>
+poloniex.getOrderStatus = pair =>
   poloniex.returnOpenOrders(pair.currency + "_" + pair.asset);
 
 module.exports = poloniex;
