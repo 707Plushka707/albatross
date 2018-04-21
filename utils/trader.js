@@ -1,5 +1,5 @@
-const FEES = require('./../exchanges/exchanges').fees;
-const PRECISIONS = require('./../exchanges/exchanges').precisions;
+const FEES = require("./../exchanges/exchanges").fees;
+const PRECISIONS = require("./../exchanges/exchanges").precisions;
 
 /* Used to find, calculate and execute trades */
 class Trader {
@@ -13,23 +13,28 @@ class Trader {
   }
 
   truncateAmount(num = 0, decimals = 0) {
-    if (!num || typeof num !== 'number') {
+    if (!num || typeof num !== "number") {
       return 0;
     }
 
     if (
       num
-      .toString()
-      .split('.')
-      .pop().length < decimals ||
-      num.toString().indexOf('.') < 0 ||
+        .toString()
+        .split(".")
+        .pop().length < decimals ||
+      num.toString().indexOf(".") < 0 ||
       decimals <= 0
     ) {
       return num;
     }
 
-    const getTruncated = new RegExp('^-?\\d+(?:\\.\\d{0,' + decimals + '})?');
-    return parseFloat(num.toString().match(getTruncated).shift());
+    const getTruncated = new RegExp("^-?\\d+(?:\\.\\d{0," + decimals + "})?");
+    return parseFloat(
+      num
+        .toString()
+        .match(getTruncated)
+        .shift()
+    );
   }
 
   executeTrade(trade, paperWallet) {
@@ -57,53 +62,65 @@ class Trader {
       data: {
         asset: limits.startAsset,
         currency: limits.startCurrency,
-        gain: limits.startAsset *
-          trade.market1.bid *
-          (1 - trade.market1.fees.taker) -
+        gain:
+          limits.startAsset *
+            trade.market1.bid *
+            (1 - trade.market1.fees.taker) -
           limits.startCurrency
       }
     };
   }
 
   getLimits(trade, paperWallet) {
-    /* if the theoretical output of the market2 trade using the total amount of currency in market2's wallet is greater than the amount of asset in       market1's wallet, then work backwards from the amount of asset in market1's wallet to find the amount of currency to transact in market2
-       otherwise, set the amount of asset to sell on market1 = to the theoretical output with the full amount of currency in market2's wallet */
-    const assetLimiting =
-      paperWallet[trade.market2.market][trade.market2.currency] /
-      trade.market2.ask *
-      (1 - trade.market2.fees.taker) >
-      paperWallet[trade.market1.market][trade.market1.asset];
-
     // market precisions
     const m1Precision =
-      PRECISIONS[trade.market1.asset + '-' + trade.market1.currency][
+      PRECISIONS[trade.market1.asset + "-" + trade.market1.currency][
         trade.market1.market
       ];
     const m2Precision =
-      PRECISIONS[trade.market1.asset + '-' + trade.market1.currency][
+      PRECISIONS[trade.market1.asset + "-" + trade.market1.currency][
         trade.market2.market
       ];
 
     // amounts to trade with based on wallet
     let startAsset = paperWallet[trade.market1.market][trade.market1.asset];
+    if (startAsset > trade.market1.bidQty) {
+      startAsset = trade.market1.bidQty;
+    }
     let startCurrency =
       paperWallet[trade.market2.market][trade.market2.currency];
+    if (startCurrency > trade.market2.askQty * trade.market2.ask) {
+      startCurrency = trade.market2.askQty * trade.market2.ask;
+    }
+
+    /* if the theoretical output of the market2 trade using the total amount of currency in market2's wallet is greater than the amount of asset in       market1's wallet, then work backwards from the amount of asset in market1's wallet to find the amount of currency to transact in market2
+       otherwise, set the amount of asset to sell on market1 = to the theoretical output with the full amount of currency in market2's wallet */
+    const assetLimiting =
+      startCurrency / trade.market2.ask * (1 - trade.market2.fees.taker) >
+      startAsset;
 
     // set amounts to trade with
     if (assetLimiting) {
-      startCurrency = startAsset * trade.market2.ask / (1 - trade.market2.fees.taker);
+      startCurrency =
+        startAsset * trade.market2.ask / (1 - trade.market2.fees.taker);
       if (m1Precision < m2Precision) {
         // selling assset on binance so we limit the asset sale to the amount we're allowed to sell
         startAsset = this.truncateAmount(startAsset, m1Precision);
         // startCurrency now uses the truncated startAsset as its target net output for the transaction
-        startCurrency = startAsset * trade.market2.ask / (1 - trade.market2.fees.taker);
+        startCurrency =
+          startAsset * trade.market2.ask / (1 - trade.market2.fees.taker);
       } else if (m2Precision < m1Precision) {
         // buying asset on binance but the amount of asset on market1 is the limiting factor.
-        startAsset = this.truncateAmount(startCurrency / trade.market2.ask, m2Precision) * (1 - trade.market2.fees.taker);
-        startCurrency = this.truncateAmount(startCurrency / trade.market2.ask, m2Precision) * trade.market2.ask;
+        startAsset =
+          this.truncateAmount(startCurrency / trade.market2.ask, m2Precision) *
+          (1 - trade.market2.fees.taker);
+        startCurrency =
+          this.truncateAmount(startCurrency / trade.market2.ask, m2Precision) *
+          trade.market2.ask;
       }
     } else {
-      startAsset = startCurrency / trade.market2.ask * (1 - trade.market2.fees.taker);
+      startAsset =
+        startCurrency / trade.market2.ask * (1 - trade.market2.fees.taker);
       if (m1Precision < m2Precision) {
         // since currency is limiting amount, we'll want to figure out the most asset we can buy with all our currency in market2, truncate it (which will be = startAsset), and then work backwards to find the amount of currency to spend in market2
         startAsset = this.truncateAmount(startAsset, m1Precision);

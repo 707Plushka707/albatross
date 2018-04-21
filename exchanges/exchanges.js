@@ -1,8 +1,8 @@
-const poloniex = require('./poloniex');
-const binance = require('./binance');
-const bittrex = require('./bittrex');
-const gdax = require('./gdax');
-const precisions = require('./pairs').precisions;
+const poloniex = require("./poloniex");
+const binance = require("./binance");
+const bittrex = require("./bittrex");
+const gdax = require("./gdax");
+const precisions = require("./pairs").precisions;
 
 const groupByCoin = markets => {
   const coins = {};
@@ -10,7 +10,9 @@ const groupByCoin = markets => {
   markets.forEach(m => {
     const market = {
       bid: m.bid,
+      bidQty: m.bidQty,
       ask: m.ask,
+      askQty: m.askQty,
       market: m.market,
       asset: m.asset,
       currency: m.currency

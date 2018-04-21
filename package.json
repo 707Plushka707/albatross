@@ -11,9 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/asperellis/albatross.git"
   },
-  "keywords": [
-    "$$$$$$$$$"
-  ],
+  "keywords": ["$$$$$$$$$"],
   "author": "Alex Sperellis and Al Doti",
   "license": "ISC",
   "bugs": {
@@ -24,9 +22,14 @@
     "axios": "^0.17.1",
     "binance": "^1.1.2",
     "gdax": "github:coinbase/gdax-node",
-    "poloniex-api-node": "^1.6.5"
+    "poloniex-api-node": "^1.6.5",
+    "node-bittrex-api": "^0.8.1"
   },
   "devDependencies": {
+    "axios": "^0.17.1",
+    "binance": "^1.1.2",
+    "gdax": "github:coinbase/gdax-node",
+    "poloniex-api-node": "^1.6.5",
     "node-bittrex-api": "^0.8.1"
   }
 }

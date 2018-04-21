@@ -1,25 +1,27 @@
-const axios = require('axios');
-const Binance = require('binance');
-const keys = require('./keys').binance;
+const axios = require("axios");
+const Binance = require("binance");
+const keys = require("./keys").binance;
 const binance = new Binance.BinanceRest({
   key: keys.privateKey,
   secret: keys.secret
 });
-const pairs = require('./pairs').getExchangePairs('binance');
-const coins = pairs.map(name => name.replace('-', ''));
+const pairs = require("./pairs").getExchangePairs("binance");
+const coins = pairs.map(name => name.replace("-", ""));
 const currencies = pairs.reduce((currs, name) => {
-  const currency = name.split('-').pop();
+  const currency = name.split("-").pop();
   if (currs.indexOf(currency) < 0) {
     currs.push(currency);
   }
   return currs;
 }, []);
 
-const mapTicker = (name, bid, ask, market, asset, currency) => {
+const mapTicker = (name, bid, bidQty, ask, askQty, market, asset, currency) => {
   return {
     name,
     bid,
+    bidQty,
     ask,
+    askQty,
     market,
     asset,
     currency
@@ -32,50 +34,54 @@ binance.fees = {
 };
 binance.getTicker = () =>
   axios
-  .all([binance.allBookTickers()])
-  .then(response => {
-    const ticker = response[0].filter(c => coins.indexOf(c.symbol) >= 0);
-    return ticker.map(item => {
-      for (let i = 0; i < currencies.length; i++) {
-        const c = currencies[i];
-        if (item.symbol.indexOf(c) >= 0) {
-          item.currency = c;
-          item.asset = item.symbol.replace(c, '');
-          break;
+    .all([binance.allBookTickers()])
+    .then(response => {
+      const ticker = response[0].filter(c => coins.indexOf(c.symbol) >= 0);
+      return ticker.map(item => {
+        for (let i = 0; i < currencies.length; i++) {
+          const c = currencies[i];
+          if (item.symbol.indexOf(c) >= 0) {
+            item.currency = c;
+            item.asset = item.symbol.replace(c, "");
+            break;
+          }
         }
-      }
 
-      return mapTicker(
-        item.symbol,
-        item.bidPrice,
-        item.askPrice,
-        'binance',
-        item.asset,
-        item.currency
-      );
+        return mapTicker(
+          item.symbol,
+          item.bidPrice,
+          item.bidQty,
+          item.askPrice,
+          item.askQty,
+          "binance",
+          item.asset,
+          item.currency
+        );
+      });
+    })
+    .catch(error => {
+      return [];
     });
-  })
-  .catch(error => {
-    return [];
-  });
 
 binance.getWallet = () =>
   axios
-  .all([binance.account()])
-  .then(response => {
-    const allBalances = response[0].balances;
-    const wallet = {};
+    .all([binance.account()])
+    .then(response => {
+      const allBalances = response[0].balances;
+      const wallet = {};
 
-    for (let i = 0; i < pairs.length; i++) {
-      const asset = pairs[i].split('-')[0];
-      wallet[asset] = parseFloat(allBalances.filter(b => b.asset === asset).pop().free);
-    }
+      for (let i = 0; i < pairs.length; i++) {
+        const asset = pairs[i].split("-")[0];
+        wallet[asset] = parseFloat(
+          allBalances.filter(b => b.asset === asset).pop().free
+        );
+      }
 
-    return wallet;
-  })
-  .catch(error => {
-    return {};
-  });
+      return wallet;
+    })
+    .catch(error => {
+      return {};
+    });
 
 /*
     Trading
@@ -88,8 +94,8 @@ binance.getWallet = () =>
 binance.buyOrder = (pair, rate, amount, fillOrKill = 0) =>
   binance.newOrder({
     symbol: pair.asset + pair.currency,
-    side: 'BUY',
-    type: 'MARKET',
+    side: "BUY",
+    type: "MARKET",
     quantity: amount,
     timestamp: Date.now()
   });
@@ -97,8 +103,8 @@ binance.buyOrder = (pair, rate, amount, fillOrKill = 0) =>
 binance.sellOrder = (pair, rate, amount, fillOrKill = 0) =>
   binance.newOrder({
     symbol: pair.asset + pair.currency,
-    side: 'SELL',
-    type: 'MARKET',
+    side: "SELL",
+    type: "MARKET",
     quantity: amount,
     timestamp: Date.now()
   });
