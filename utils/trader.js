@@ -5,11 +5,16 @@ const PRECISIONS = require("./../exchanges/exchanges").precisions;
 
 /* Used to find, calculate and execute trades */
 class Trader {
+  constructor(minTrade, trigger) {
+    this.minTrade = minTrade;
+    this.trigger = trigger;
+  }
+
   canTrade(market1, market2, paperWallet) {
-    const MIN_TRADE = 0.0003;
     const meetsMin =
-      paperWallet[market1.market][market1.asset] * market1.bid > MIN_TRADE &&
-      paperWallet[market2.market][market2.currency] > MIN_TRADE;
+      paperWallet[market1.market][market1.asset] * market1.bid >
+        this.minTrade &&
+      paperWallet[market2.market][market2.currency] > this.minTrade;
 
     return meetsMin;
   }
@@ -39,28 +44,77 @@ class Trader {
     );
   }
 
-  executeTrade(trade, paperWallet) {
+  executeTrade(
+    trade,
+    wallets,
+    sellExchange,
+    buyExchange,
+    logAndFindAnotherTrade
+  ) {
     // find limiting asset/currency
-    const limits = this.getLimits(trade, paperWallet);
+    const limits = this.getLimits(trade, wallets);
+
+    if (limits.startAsset && limits.startCurrency) {
+      trade.data = {
+        asset: limits.startAsset,
+        currency: limits.startCurrency,
+        gain:
+          limits.startAsset *
+            trade.market1.bid *
+            (1 - trade.market1.fees.taker) -
+          limits.startCurrency
+      };
+
+      // axios.all([
+      //   sellExchange.sellOrder(
+      //     trade.market1,
+      //     trade.market1.bid * 0.9,
+      //     trade.data.asset,
+      //     0
+      //   ),
+      //   buyExchange.buyOrder(
+      //     trade.market2,
+      //     trade.market2.ask * 1.1,
+      //     trade.data.currency / trade.market2.ask,
+      //     0
+      //   )
+      // ])
+      // .then(
+      //   axios.spread((sellOrder, buyOrder) => {
+      //     // order status is pending at this point need to constantly check if they are both done
+      //     this.checkOrders(
+      //       sellExchange,
+      //       buyExchange,
+      //       trade,
+      //       logAndFindAnotherTrade
+      //     );
+      //   })
+      // );
+    }
+  }
+
+  executePaperTrade(trade, wallets) {
+    // find limiting asset/currency
+    const limits = this.getLimits(trade, wallets);
     // will hold the new wallet values post trade
-    let newWallet = paperWallet;
+    let paperWallet = Object.assign({}, wallets);
     // send trades/update paper wallet
     if (limits.startAsset && limits.startCurrency) {
-      newWallet[trade.market1.market][trade.market1.asset] -= limits.startAsset;
-      newWallet[trade.market1.market][trade.market1.currency] +=
+      paperWallet[trade.market1.market][trade.market1.asset] -=
+        limits.startAsset;
+      paperWallet[trade.market1.market][trade.market1.currency] +=
         limits.startAsset * trade.market1.bid * (1 - trade.market1.fees.taker);
 
-      newWallet[trade.market2.market][trade.market2.currency] -=
+      paperWallet[trade.market2.market][trade.market2.currency] -=
         limits.startCurrency;
-      newWallet[trade.market2.market][trade.market2.asset] +=
+      paperWallet[trade.market2.market][trade.market2.asset] +=
         limits.startCurrency /
         trade.market2.ask *
         (1 - trade.market2.fees.taker);
     }
-
     // return the updated wallet after the trade is complete
     return {
-      newWallet,
+      paperWallet,
       data: {
         asset: limits.startAsset,
         currency: limits.startCurrency,
@@ -165,8 +219,6 @@ class Trader {
 
   // compares all coins market prices. if margin meets trigger. return trade
   getTrade(coins, paperWallet) {
-    // constants
-    const TRIGGER = 0.0025;
     // trade to return
     let trade = {};
 
@@ -218,7 +270,7 @@ class Trader {
     }
 
     // if there's a trade and the net is not greater than our min allowed for a trade then return nothing
-    if (trade.net < TRIGGER || !trade.net) {
+    if (trade.net < this.trigger || !trade.net) {
       return false;
     }
 
@@ -226,10 +278,10 @@ class Trader {
     return trade;
   }
 
-  checkOrders(exchange1, exchange2, pair, callback) {
-    const areOrdersComplete = (exchange1, exchange2, pair) => {
+  checkOrders(exchange1, exchange2, trade, callback) {
+    const areOrdersComplete = (exchange1, exchange2, trade.market1) => {
       return axios
-        .all([exchange1.getOrderStatus(pair), exchange2.getOrderStatus(pair)])
+        .all([exchange1.getOrderStatus(trade.market1), exchange2.getOrderStatus(trade.market1)])
         .then(
           axios.spread((sellOrder, buyOrder) => {
             if (buyOrder.length || sellOrder.length) {
@@ -242,13 +294,13 @@ class Trader {
         .catch(err => console.log(err));
     };
 
-    areOrdersComplete(exchange1, exchange2, pair)
+    areOrdersComplete(exchange1, exchange2, trade.market1)
       .then(res => {
         if (res) {
           // log and go again
-          callback();
+          callback(trade);
         } else {
-          this.checkOrders(exchange1, exchange2, pair, callback);
+          this.checkOrders(exchange1, exchange2, trade.market1, callback);
         }
       })
       .catch(err => console.log(err));

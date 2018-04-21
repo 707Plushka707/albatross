@@ -1,3 +1,4 @@
 node_modules
 trade_log.txt
+paper_trade_log.txt
 exchanges/keys.js

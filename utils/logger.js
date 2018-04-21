@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require("fs");
 
 /* Used for logging data to files */
 class Logger {
@@ -10,8 +10,8 @@ class Logger {
   cleanJSON(jsonStr) {
     return jsonStr
       .slice(1)
-      .replace(/${|"/g, '')
-      .replace(/(:{|,|})/g, '\n')
+      .replace(/${|"/g, "")
+      .replace(/(:{|,|})/g, "\n")
       .trim();
   }
 
@@ -28,14 +28,14 @@ class Logger {
     const yyyy = today.getFullYear();
 
     if (dd < 10) {
-      dd = '0' + dd;
+      dd = "0" + dd;
     }
 
     if (mm < 10) {
-      mm = '0' + mm;
+      mm = "0" + mm;
     }
 
-    return mm + '-' + dd + '-' + yyyy + ', ' + hh + ':' + mins + ':' + ss;
+    return mm + "-" + dd + "-" + yyyy + ", " + hh + ":" + mins + ":" + ss;
   }
 
   /*
@@ -50,7 +50,7 @@ class Logger {
     let logStr = item;
 
     if (addTime) {
-      logStr = '\n' + this.getTimeStamp() + '\n' + logStr;
+      logStr = "\n" + this.getTimeStamp() + "\n" + logStr;
     }
 
     fs.access(fileName, fs.constants.F_OK, err => {
@@ -61,7 +61,7 @@ class Logger {
           }
         });
       } else {
-        fs.appendFile(fileName, '\n' + logStr, err => {
+        fs.appendFile(fileName, "\n" + logStr, err => {
           if (callback || err) {
             callback();
           }
@@ -91,7 +91,7 @@ class Logger {
       trade.data.asset,
       trade.data.currency,
       trade.data.gain
-    ].join(', ');
+    ].join(", ");
 
     return tradeString;
   }

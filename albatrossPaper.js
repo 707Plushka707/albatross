@@ -6,21 +6,20 @@ const exchanges = require("./exchanges/exchanges");
 const Trader = require("./utils/trader");
 // logger for writing trade data to txt
 const Logger = require("./utils/logger");
-// paper wallets for each exchange - local testing only - will use apis later
-let paperWallet = require("./utils/wallets");
-
 const logger = new Logger();
+// paper wallets for each exchange - local testing only - will use apis later
+let wallets = require("./utils/wallets");
 
 // init log
 logger.log(
-  "Start Trading\n\n" + logger.cleanJSON(JSON.stringify(paperWallet)) + "\n",
+  "Start Trading\n\n" + logger.cleanJSON(JSON.stringify(wallets)) + "\n",
   "paper_trade_log.txt",
   true,
   null
 );
 
 // handles all trades
-const paperTrader = new Trader();
+const trader = new Trader(0.0003, 0.0025);
 
 // count trades
 let tradeCount = 0;
@@ -30,39 +29,38 @@ const init = () => {
   axios
     .all([exchanges.poloniex.getTicker(), exchanges.binance.getTicker()])
     .then(
-      axios.spread((poloniex, binance) => {
-        // compare all possible market pairs for each coin - makes sure they arent undefined
-        const trade = paperTrader.getTrade(
-          exchanges.groupByCoin([...poloniex, ...binance].filter(m => m)),
-          paperWallet
-        );
-
-        if (trade) {
-          // exe a paper trade
-          const traded = paperTrader.executeTrade(trade, paperWallet);
-          paperWallet = traded.newWallet;
-
-          // trade count inc
-          tradeCount++;
-          trade.count = tradeCount;
-          trade.data = traded.data;
-
-          // non paper trade notes
-          // sell on market 1, buy on market 2
-          const sellExchange = exchanges[trade.market1.market];
-          const buyExchange = exchanges[trade.market2.market];
-          // log the trade and go again
-          logger.log(
-            logger.getTradeString(trade),
-            "paper_trade_log.txt",
-            false,
-            init
-          );
-        } else {
-          //  if no trade look again
-          init();
-        }
-      })
+      // get the tickers for all exchanges you want to look at
+      axios
+        .all([exchanges.poloniex.getTicker(), exchanges.binance.getTicker()])
+        .then(
+          axios.spread((poloniex, binance) => {
+            // compare all possible market pairs for each coin - makes sure they arent undefined
+            const trade = trader.getTrade(
+              exchanges.groupByCoin([...poloniex, ...binance].filter(m => m)),
+              wallets
+            );
+            // exe a trade
+            if (trade) {
+              const tradeResults = trader.executePaperTrade(trade, wallets);
+              trade.count = tradeCount++;
+              paperWallet = tradeResults.paperWallet;
+              trade.data = tradeResults.data;
+              // log the trade and go again
+              logger.log(
+                logger.getTradeString(trade),
+                "paper_trade_log.txt",
+                false,
+                init
+              );
+            } else {
+              // or look again
+              init();
+            }
+          })
+        )
+        .catch(error => {
+          console.log(error);
+        })
     )
     .catch(error => {
       console.log(error);
@@ -72,7 +70,7 @@ const init = () => {
 // log the wallet on close
 process.on("SIGINT", () => {
   logger.log(
-    "\nEnd Trading\n" + logger.cleanJSON(JSON.stringify(paperWallet)),
+    "\nEnd Trading\n" + logger.cleanJSON(JSON.stringify(wallets)),
     "paper_trade_log.txt",
     true,
     process.exit
