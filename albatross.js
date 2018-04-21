@@ -6,10 +6,6 @@ const exchanges = require("./exchanges/exchanges");
 const Trader = require("./utils/trader");
 // logger for writing trade data to txt
 const Logger = require("./utils/logger");
-// paper wallets for each exchange - local testing only - will use apis later
-let paperWallet = require("./utils/wallets");
-// temp for flagging paper trades or not
-let paperTrade = true;
 
 const logger = new Logger();
 
@@ -22,7 +18,7 @@ logger.log(
 );
 
 // handles all trades
-const paperTrader = new Trader();
+const trader = new Trader();
 
 // count trades
 let tradeCount = 0;
@@ -39,21 +35,19 @@ const init = () => {
           binance: binanceWallet
         };
 
-        console.log(wallets);
-
         axios
           .all([exchanges.poloniex.getTicker(), exchanges.binance.getTicker()])
           .then(
             axios.spread((poloniex, binance) => {
               // compare all possible market pairs for each coin - makes sure they arent undefined
-              const trade = paperTrader.getTrade(
+              const trade = trader.getTrade(
                 exchanges.groupByCoin([...poloniex, ...binance].filter(m => m)),
                 paperWallet
               );
 
               if (trade) {
                 // exe a paper trade
-                const traded = paperTrader.executeTrade(trade, paperWallet);
+                const traded = trader.executeTrade(trade, paperWallet);
                 paperWallet = traded.newWallet;
 
                 // trade count inc
@@ -66,38 +60,38 @@ const init = () => {
                 const sellExchange = exchanges[trade.market1.market];
                 const buyExchange = exchanges[trade.market2.market];
 
-                // axios
-                //   .all([
-                //     sellExchange.sellOrder(
-                //       trade.market1,
-                //       trade.market1.bid * 0.9,
-                //       trade.data.asset,
-                //       0
-                //     ),
-                //     buyExchange.buyOrder(
-                //       trade.market2,
-                //       trade.market2.ask * 1.1,
-                //       trade.data.currency / trade.market2.ask,
-                //       0
-                //     )
-                //   ])
-                //   .then(
-                //     axios.spread((sellOrder, buyOrder) => {
-                //       // order status is pending at this point need to constantly check if they are both done
-                //       paperTrader.checkOrders(
-                //         sellExchange,
-                //         buyExchange,
-                //         trade.market1,
-                //         // log the trade and go again
-                //         logger.log(
-                //           logger.getTradeString(trade),
-                //           "trade_log.txt",
-                //           false,
-                //           init
-                //         )
-                //       );
-                //     })
-                //   );
+                axios
+                  .all([
+                    sellExchange.sellOrder(
+                      trade.market1,
+                      trade.market1.bid * 0.9,
+                      trade.data.asset,
+                      0
+                    ),
+                    buyExchange.buyOrder(
+                      trade.market2,
+                      trade.market2.ask * 1.1,
+                      trade.data.currency / trade.market2.ask,
+                      0
+                    )
+                  ])
+                  .then(
+                    axios.spread((sellOrder, buyOrder) => {
+                      // order status is pending at this point need to constantly check if they are both done
+                      trader.checkOrders(
+                        sellExchange,
+                        buyExchange,
+                        trade.market1,
+                        // log the trade and go again
+                        logger.log(
+                          logger.getTradeString(trade),
+                          "trade_log.txt",
+                          false,
+                          init
+                        )
+                      );
+                    })
+                  );
               } else {
                 //  if no trade look again
                 init();

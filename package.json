@@ -5,7 +5,8 @@
   "main": "albatross.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "albatross": "node albatross.js"
+    "albatross": "node albatross.js",
+    "paperAlbatross": "node albatross.js"
   },
   "repository": {
     "type": "git",
