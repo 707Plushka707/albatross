@@ -279,9 +279,9 @@ class Trader {
   }
 
   checkOrders(exchange1, exchange2, trade, callback) {
-    const areOrdersComplete = (exchange1, exchange2, trade.market1) => {
+    const areOrdersComplete = (exchange1, exchange2, pair) => {
       return axios
-        .all([exchange1.getOrderStatus(trade.market1), exchange2.getOrderStatus(trade.market1)])
+        .all([exchange1.getOrderStatus(pair), exchange2.getOrderStatus(pair)])
         .then(
           axios.spread((sellOrder, buyOrder) => {
             if (buyOrder.length || sellOrder.length) {
@@ -300,7 +300,7 @@ class Trader {
           // log and go again
           callback(trade);
         } else {
-          this.checkOrders(exchange1, exchange2, trade.market1, callback);
+          this.checkOrders(exchange1, exchange2, trade, callback);
         }
       })
       .catch(err => console.log(err));
