@@ -65,31 +65,32 @@ class Trader {
           limits.startCurrency
       };
 
-      // axios.all([
-      //   sellExchange.sellOrder(
-      //     trade.market1,
-      //     trade.market1.bid * 0.9,
-      //     trade.data.asset,
-      //     0
-      //   ),
-      //   buyExchange.buyOrder(
-      //     trade.market2,
-      //     trade.market2.ask * 1.1,
-      //     trade.data.currency / trade.market2.ask,
-      //     0
-      //   )
-      // ])
-      // .then(
-      //   axios.spread((sellOrder, buyOrder) => {
-      //     // order status is pending at this point need to constantly check if they are both done
-      //     this.checkOrders(
-      //       sellExchange,
-      //       buyExchange,
-      //       trade,
-      //       logAndFindAnotherTrade
-      //     );
-      //   })
-      // );
+      axios
+        .all([
+          sellExchange.sellOrder(
+            trade.market1,
+            trade.market1.bid * 0.9,
+            trade.data.asset,
+            0
+          ),
+          buyExchange.buyOrder(
+            trade.market2,
+            trade.market2.ask * 1.1,
+            trade.data.currency / trade.market2.ask,
+            0
+          )
+        ])
+        .then(
+          axios.spread((sellOrder, buyOrder) => {
+            // order status is pending at this point need to constantly check if they are both done
+            this.checkOrders(
+              sellExchange,
+              buyExchange,
+              trade,
+              logAndFindAnotherTrade
+            );
+          })
+        );
     }
   }
 
