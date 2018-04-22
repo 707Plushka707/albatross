@@ -13,7 +13,15 @@ let wallets = {};
 // logger for writing trade data to txt
 const Logger = require("./utils/logger");
 const logger = new Logger();
-
+// init log
+if (tradeCount === 0) {
+  logger.log(
+    "Start Trading\n\n" + logger.cleanJSON(JSON.stringify(wallets)) + "\n",
+    "trade_log.txt",
+    true,
+    null
+  );
+}
 const init = () => {
   // get all the wallet information here
   axios
@@ -25,17 +33,6 @@ const init = () => {
           poloniex: poloniexWallet,
           binance: binanceWallet
         };
-        // init log
-        if (tradeCount === 0) {
-          logger.log(
-            "Start Trading\n\n" +
-              logger.cleanJSON(JSON.stringify(wallets)) +
-              "\n",
-            "trade_log.txt",
-            true,
-            null
-          );
-        }
         // get the tickers for all exchanges you want to look at
         axios
           .all([exchanges.poloniex.getTicker(), exchanges.binance.getTicker()])

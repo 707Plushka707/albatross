@@ -90,7 +90,10 @@ class Trader {
               logAndFindAnotherTrade
             );
           })
-        );
+        )
+        .catch(err => {
+          console.log(err, trade);
+        });
     }
   }
 
