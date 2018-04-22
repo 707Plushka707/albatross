@@ -26,14 +26,16 @@ const init = () => {
           binance: binanceWallet
         };
         // init log
-        logger.log(
-          "Start Trading\n\n" +
-            logger.cleanJSON(JSON.stringify(wallets)) +
-            "\n",
-          "trade_log.txt",
-          true,
-          null
-        );
+        if (tradeCount === 0) {
+          logger.log(
+            "Start Trading\n\n" +
+              logger.cleanJSON(JSON.stringify(wallets)) +
+              "\n",
+            "trade_log.txt",
+            true,
+            null
+          );
+        }
         // get the tickers for all exchanges you want to look at
         axios
           .all([exchanges.poloniex.getTicker(), exchanges.binance.getTicker()])
