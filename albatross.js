@@ -1,9 +1,9 @@
 // api helper
-const axios = require("axios");
+const axios = require('axios');
 // apis for each exchange
-const exchanges = require("./exchanges/exchanges");
+const exchanges = require('./exchanges/exchanges');
 // paper trader - for executing trades - local testing only - will add method to each exchange matching with api specs
-const Trader = require("./utils/trader");
+const Trader = require('./utils/trader');
 // handles all trades
 const trader = new Trader(0.0003, 0.0025);
 // count trades
@@ -11,13 +11,13 @@ let tradeCount = 0;
 // wallets
 let wallets = {};
 // logger for writing trade data to txt
-const Logger = require("./utils/logger");
+const Logger = require('./utils/logger');
 const logger = new Logger();
 // init log
 if (tradeCount === 0) {
   logger.log(
-    "Start Trading\n\n" + logger.cleanJSON(JSON.stringify(wallets)) + "\n",
-    "trade_log.txt",
+    'Start Trading\n\n' + logger.cleanJSON(JSON.stringify(wallets)) + '\n',
+    'trade_log.txt',
     true,
     null
   );
@@ -53,10 +53,13 @@ const init = () => {
                   wallets,
                   sellExchange,
                   buyExchange,
-                  tradeResults => {
+                  (trade, executed = true) => {
                     logger.log(
-                      logger.getTradeString(tradeResults),
-                      "trade_log.txt",
+                      (!executed ? 'FAILED TRADE' : '') +
+                        logger.getTradeString(trade) +
+                        '\n' +
+                        JSON.stringify(trade),
+                      'trade_log.txt',
                       false,
                       init
                     );
@@ -79,10 +82,10 @@ const init = () => {
 };
 
 // log the wallet on close
-process.on("SIGINT", () => {
+process.on('SIGINT', () => {
   logger.log(
-    "\nEnd Trading\n" + logger.cleanJSON(JSON.stringify(wallets)),
-    "trade_log.txt",
+    '\nEnd Trading\n' + logger.cleanJSON(JSON.stringify(wallets)),
+    'trade_log.txt',
     true,
     process.exit
   );

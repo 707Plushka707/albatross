@@ -1,25 +1,25 @@
 // api helper
-const axios = require("axios");
+const axios = require('axios');
 // apis for each exchange
-const exchanges = require("./exchanges/exchanges");
+const exchanges = require('./exchanges/exchanges');
 // paper trader - for executing trades - local testing only - will add method to each exchange matching with api specs
-const Trader = require("./utils/trader");
+const Trader = require('./utils/trader');
 // logger for writing trade data to txt
-const Logger = require("./utils/logger");
+const Logger = require('./utils/logger');
 const logger = new Logger();
 // paper wallets for each exchange - local testing only - will use apis later
-let wallets = require("./utils/wallets");
+let wallets = require('./utils/wallets');
 
 // init log
 logger.log(
-  "Start Trading\n\n" + logger.cleanJSON(JSON.stringify(wallets)) + "\n",
-  "paper_trade_log.txt",
+  'Start Trading\n\n' + logger.cleanJSON(JSON.stringify(wallets)) + '\n',
+  'paper_trade_log.txt',
   true,
   null
 );
 
 // handles all trades
-const trader = new Trader(0.0003, 0.0025);
+const trader = new Trader(0, 0);
 
 // count trades
 let tradeCount = 0;
@@ -48,7 +48,7 @@ const init = () => {
               // log the trade and go again
               logger.log(
                 logger.getTradeString(trade),
-                "paper_trade_log.txt",
+                'paper_trade_log.txt',
                 false,
                 init
               );
@@ -68,10 +68,10 @@ const init = () => {
 };
 
 // log the wallet on close
-process.on("SIGINT", () => {
+process.on('SIGINT', () => {
   logger.log(
-    "\nEnd Trading\n" + logger.cleanJSON(JSON.stringify(wallets)),
-    "paper_trade_log.txt",
+    '\nEnd Trading\n' + logger.cleanJSON(JSON.stringify(wallets)),
+    'paper_trade_log.txt',
     true,
     process.exit
   );

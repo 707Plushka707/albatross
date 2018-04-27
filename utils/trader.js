@@ -1,7 +1,7 @@
 // api helper
-const axios = require("axios");
-const FEES = require("./../exchanges/exchanges").fees;
-const PRECISIONS = require("./../exchanges/exchanges").precisions;
+const axios = require('axios');
+const FEES = require('./../exchanges/exchanges').fees;
+const PRECISIONS = require('./../exchanges/exchanges').precisions;
 
 /* Used to find, calculate and execute trades */
 class Trader {
@@ -10,32 +10,32 @@ class Trader {
     this.trigger = trigger;
   }
 
-  canTrade(market1, market2, paperWallet) {
+  canTrade(market1, market2, wallet) {
     const meetsMin =
-      paperWallet[market1.market][market1.asset] * market1.bid >
+      wallet[market1.market][market1.asset] * market1.bid - 0.003 >
         this.minTrade &&
-      paperWallet[market2.market][market2.currency] > this.minTrade;
+      wallet[market2.market][market2.currency] - 0.003 > this.minTrade;
 
     return meetsMin;
   }
 
   truncateAmount(num = 0, decimals = 0) {
-    if (!num || typeof num !== "number") {
+    if (!num || typeof num !== 'number') {
       return 0;
     }
 
     if (
       num
         .toString()
-        .split(".")
+        .split('.')
         .pop().length < decimals ||
-      num.toString().indexOf(".") < 0 ||
+      num.toString().indexOf('.') < 0 ||
       decimals <= 0
     ) {
       return num;
     }
 
-    const getTruncated = new RegExp("^-?\\d+(?:\\.\\d{0," + decimals + "})?");
+    const getTruncated = new RegExp('^-?\\d+(?:\\.\\d{0,' + decimals + '})?');
     return parseFloat(
       num
         .toString()
@@ -55,6 +55,15 @@ class Trader {
     const limits = this.getLimits(trade, wallets);
 
     if (limits.startAsset && limits.startCurrency) {
+      const m1Precision =
+        PRECISIONS[trade.market1.asset + '-' + trade.market1.currency][
+          trade.market1.market
+        ];
+      const m2Precision =
+        PRECISIONS[trade.market1.asset + '-' + trade.market1.currency][
+          trade.market2.market
+        ];
+
       trade.data = {
         asset: limits.startAsset,
         currency: limits.startCurrency,
@@ -70,13 +79,16 @@ class Trader {
           sellExchange.sellOrder(
             trade.market1,
             trade.market1.bid * 0.9,
-            trade.data.asset,
+            this.truncateAmount(trade.data.asset, m1Precision),
             0
           ),
           buyExchange.buyOrder(
             trade.market2,
             trade.market2.ask * 1.1,
-            trade.data.currency / trade.market2.ask,
+            this.truncateAmount(
+              trade.data.currency / trade.market2.ask,
+              m2Precision
+            ),
             0
           )
         ])
@@ -94,11 +106,19 @@ class Trader {
         .catch(err => {
           console.log(err, trade);
         });
+    } else {
+      trade.data = {
+        asset: 0,
+        currency: 0,
+        gain: 0
+      };
+      logAndFindAnotherTrade(trade, false);
     }
   }
 
   executePaperTrade(trade, wallets) {
     // find limiting asset/currency
+    console.log(trade);
     const limits = this.getLimits(trade, wallets);
     // will hold the new wallet values post trade
     let paperWallet = Object.assign({}, wallets);
@@ -131,26 +151,33 @@ class Trader {
     };
   }
 
-  getLimits(trade, paperWallet) {
+  getLimits(trade, wallets) {
     // market precisions
     const m1Precision =
-      PRECISIONS[trade.market1.asset + "-" + trade.market1.currency][
+      PRECISIONS[trade.market1.asset + '-' + trade.market1.currency][
         trade.market1.market
       ];
     const m2Precision =
-      PRECISIONS[trade.market1.asset + "-" + trade.market1.currency][
+      PRECISIONS[trade.market1.asset + '-' + trade.market1.currency][
         trade.market2.market
       ];
 
     // amounts to trade with based on wallet
-    let startAsset = paperWallet[trade.market1.market][trade.market1.asset];
+    let startAsset = wallets[trade.market1.market][trade.market1.asset];
     if (startAsset > trade.market1.bidQty) {
       startAsset = trade.market1.bidQty;
     }
-    let startCurrency =
-      paperWallet[trade.market2.market][trade.market2.currency];
+    let startCurrency = wallets[trade.market2.market][trade.market2.currency];
     if (startCurrency > trade.market2.askQty * trade.market2.ask) {
       startCurrency = trade.market2.askQty * trade.market2.ask;
+    }
+
+    const meetsMin =
+      startAsset * trade.market1.bid > this.minTrade &&
+      startCurrency > this.minTrade;
+
+    if (!meetsMin) {
+      return {};
     }
 
     /* if the theoretical output of the market2 trade using the total amount of currency in market2's wallet is greater than the amount of asset in       market1's wallet, then work backwards from the amount of asset in market1's wallet to find the amount of currency to transact in market2
@@ -203,11 +230,11 @@ class Trader {
     };
   }
 
-  getMargin(market1, market2, paperWallet) {
+  getMargin(market1, market2, wallet) {
     // theoretical 1 BTC currency input but it doesnt matter.
     // market 1 - asset to currency
     // market 2 - currency to asset
-    if (!this.canTrade(market1, market2, paperWallet)) {
+    if (!this.canTrade(market1, market2, wallet)) {
       return 0;
     }
     return (
@@ -222,7 +249,7 @@ class Trader {
   }
 
   // compares all coins market prices. if margin meets trigger. return trade
-  getTrade(coins, paperWallet) {
+  getTrade(coins, wallet) {
     // trade to return
     let trade = {};
 
@@ -252,8 +279,8 @@ class Trader {
           market1.fees = FEES[market1.market];
           market2.fees = FEES[market2.market];
           // calc nets
-          const m1ToM2 = this.getMargin(market1, market2, paperWallet);
-          const m2ToM1 = this.getMargin(market2, market1, paperWallet);
+          const m1ToM2 = this.getMargin(market1, market2, wallet);
+          const m2ToM1 = this.getMargin(market2, market1, wallet);
           // see if either pair beats the current trades net
           // TODO: if exchange 1 and exchange 2 wallets have x amounts for asset and currency
           if (m1ToM2 > m2ToM1) {
