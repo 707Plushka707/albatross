@@ -300,7 +300,7 @@ class Trader {
 
     // if there's a trade and the net is not greater than our min allowed for a trade then return nothing
     if (trade && trade.net) {
-      if (trade.net < this.trigger) {
+      if (trade.net >= this.trigger) {
         // return the trade and all info needed to exec on any exchange
         return trade;
       }
