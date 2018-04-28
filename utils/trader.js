@@ -249,7 +249,7 @@ class Trader {
   // compares all coins market prices. if margin meets trigger. return trade
   getTrade(coins, wallet) {
     // trade to return
-    let trade;
+    let trade = {};
 
     // compares current highest trade and a new one
     const updateTrade = (current, newest) => {
@@ -299,12 +299,14 @@ class Trader {
     }
 
     // if there's a trade and the net is not greater than our min allowed for a trade then return nothing
-    if (!trade || trade.net < this.trigger) {
-      return false;
+    if (trade && trade.net) {
+      if (trade.net < this.trigger) {
+        // return the trade and all info needed to exec on any exchange
+        return trade;
+      }
     }
 
-    // return the trade and all info needed to exec on any exchange
-    return trade;
+    return false;
   }
 
   checkOrders(exchange1, exchange2, trade, callback) {
