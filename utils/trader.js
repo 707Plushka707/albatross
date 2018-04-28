@@ -12,8 +12,7 @@ class Trader {
 
   canTrade(market1, market2, wallet) {
     const meetsMin =
-      wallet[market1.market][market1.asset] * market1.bid - 0.003 >
-        this.minTrade &&
+      wallet[market1.market][market1.asset] * market1.bid > this.minTrade &&
       wallet[market2.market][market2.currency] - 0.003 > this.minTrade;
 
     return meetsMin;
