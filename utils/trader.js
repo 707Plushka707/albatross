@@ -23,6 +23,10 @@ class Trader {
       return 0;
     }
 
+    if (decimals === 0) {
+      return parseInt(num.toString().split('.')[0], 10);
+    }
+
     if (
       num
         .toString()
