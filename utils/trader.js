@@ -299,7 +299,7 @@ class Trader {
     }
 
     // if there's a trade and the net is not greater than our min allowed for a trade then return nothing
-    if (trade.net < this.trigger) {
+    if (!trade || trade.net < this.trigger) {
       return false;
     }
 
