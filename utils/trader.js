@@ -117,7 +117,6 @@ class Trader {
 
   executePaperTrade(trade, wallets) {
     // find limiting asset/currency
-    console.log(trade);
     const limits = this.getLimits(trade, wallets);
     // will hold the new wallet values post trade
     let paperWallet = Object.assign({}, wallets);
@@ -250,7 +249,7 @@ class Trader {
   // compares all coins market prices. if margin meets trigger. return trade
   getTrade(coins, wallet) {
     // trade to return
-    let trade = {};
+    let trade;
 
     // compares current highest trade and a new one
     const updateTrade = (current, newest) => {
